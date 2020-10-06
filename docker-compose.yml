@@ -1,0 +1,12 @@
+version: '3.4'
+
+services:
+    postgisproject:
+        image: ${DOCKER_REGISTRY-}postgisproject
+        build:
+            context: .
+            dockerfile: PostgisProject/Dockerfile
+
+    postgis-db:
+        image: postgis/postgis:latest
+    
