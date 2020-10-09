@@ -9,6 +9,8 @@ services:
         ports:
             - "25000:80"
             - "25001:443"
+        environment: 
+            - ConnectionStrings__DefaultConnection-Server=launch=postgis-db;Database=devdb;User Id=devdbuser;password=devdbproject //be
         depends_on:
             - "postgis-db"
 

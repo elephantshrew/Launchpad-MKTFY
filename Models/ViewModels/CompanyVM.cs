@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Models.ViewModels
-{
+namespace Models.ViewModels 
+{ 
+
     public class CompanyVM
     {
         public Guid Id { get; set; }
