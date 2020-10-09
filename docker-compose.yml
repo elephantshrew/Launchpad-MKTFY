@@ -5,7 +5,7 @@ services:
         image: ${DOCKER_REGISTRY-}postgisproject
         build:
             context: .
-            dockerfile: PostgisProject/Dockerfile
+            dockerfile: Launchpad.Api/Dockerfile
         ports:
             - "25000:80"
             - "25001:443"

@@ -1,10 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Models.Entities;
+using Launchpad.Models.Entities;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace App
+namespace Launchpad.App
 {
     public class ApplicationDbContext : DbContext
     {

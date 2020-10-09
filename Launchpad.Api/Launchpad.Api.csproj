@@ -17,8 +17,14 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\App\App.csproj" />
-    <ProjectReference Include="..\Models\Models.csproj" />
+    <ProjectReference Include="..\Launchpad.App\Launchpad.App.csproj" />
+    <ProjectReference Include="..\Launchpad.App\Launchpad.App.csproj" />
+    <ProjectReference Include="..\Launchpad.Models\Launchpad.Models.csproj" />
+    <ProjectReference Include="..\Launchpad.Models\Launchpad.Models.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Controllers\" />
   </ItemGroup>
 
 
