@@ -11,6 +11,6 @@ namespace Launchpad.Models.Entities
         public Guid Id { get; set; }
 
         [Required]
-        public String Name { get; set; } = "John";
+        public String Name { get; set; } 
     }
 }

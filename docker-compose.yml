@@ -10,7 +10,7 @@ services:
             - "25000:80"
             - "25001:443"
         environment: 
-            - ConnectionStrings__DefaultConnection-Server=launch=postgis-db;Database=devdb;User Id=devdbuser;password=devdbproject //be
+            - ConnectionStrings__DefaultConnection-Server=launch=postgis-db;Database=devdb;User Id=devdbuser;password=devdbproject 
         depends_on:
             - "postgis-db"
 

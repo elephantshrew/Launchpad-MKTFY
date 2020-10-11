@@ -32,7 +32,7 @@ namespace Launchpad.Api
                 options.UseNpgsql(Configuration.GetConnectionString("DefaultConnection"),
                 b =>
                 {
-                    b.MigrationsAssembly("App");
+                    b.MigrationsAssembly("Launchpad.App");
                 })
             );
 
@@ -54,10 +54,26 @@ namespace Launchpad.Api
 
             app.UseAuthorization();
 
+            UpdateDatabase(app);
+
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
             });
+        }
+
+        private static void UpdateDatabase(IApplicationBuilder app)
+        {
+            using (var serviceScope = app.ApplicationServices
+                .GetRequiredService<IServiceScopeFactory>()
+                .CreateScope())
+            {
+                using (var context = serviceScope.ServiceProvider.GetService<ApplicationDbContext>())
+                {
+                    context.Database.Migrate();
+                }
+            }
+
         }
     }
 }
