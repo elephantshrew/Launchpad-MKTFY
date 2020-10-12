@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Launchpad.App;
+using Launchpad.App.Repositories;
+using Launchpad.App.Repositories.Interfaces;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Connections;
 using Microsoft.AspNetCore.Hosting;
@@ -38,6 +40,10 @@ namespace Launchpad.Api
 
 
             services.AddControllers();
+
+            //Add Repositories to dependency injection
+            services.AddScoped<ICompanyRepository, CompanyRepository>();
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -54,14 +60,14 @@ namespace Launchpad.Api
 
             app.UseAuthorization();
 
-            UpdateDatabase(app);
+            //UpdateDatabase(app);
 
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
             });
         }
-
+        
         private static void UpdateDatabase(IApplicationBuilder app)
         {
             using (var serviceScope = app.ApplicationServices
