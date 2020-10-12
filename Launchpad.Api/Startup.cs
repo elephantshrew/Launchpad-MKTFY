@@ -60,7 +60,7 @@ namespace Launchpad.Api
 
             app.UseAuthorization();
 
-            //UpdateDatabase(app);
+            UpdateDatabase(app);
 
             app.UseEndpoints(endpoints =>
             {

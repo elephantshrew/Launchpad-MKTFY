@@ -2,7 +2,9 @@ version: '3.4'
 
 services:
     postgisproject:
+        restart: on-failure
         image: ${DOCKER_REGISTRY-}postgisproject
+        container_name: "postgisproject"
         build:
             context: .
             dockerfile: Launchpad.Api/Dockerfile
@@ -10,13 +12,14 @@ services:
             - "25000:80"
             - "25001:443"
         environment: 
-            - ConnectionStrings__DefaultConnection-Server=launch=postgis-db;Database=devdb;User Id=devdbuser;password=devdbproject 
+            - ConnectionStrings__DefaultConnection-Server=postgis-db;Database=devdb;User Id=devdbuser;password=devdbpassword
         depends_on:
             - "postgis-db"
 
     postgis-db:
         restart: on-failure
         image: postgis/postgis:latest
+        container_name: "postgis-db"
         environment:
             - POSTGRES_USER=devdbuser
             - POSTGRES_DB=devdb
