@@ -28,6 +28,22 @@ services:
             - launchpad-db:/var/lib/postgresql/data
         ports:
             - "26000:5432"
+
+    postgis.auth:
+        restart: on-failure
+        image: ${DOCKER_REGISTRY-}postgis.auth
+        container_name: postgis.auth
+        build:
+            context: .
+            dockerfile: Launchpad.Auth/Dockerfile
+        ports:
+            - "27000:80"
+            - "27001:443"
+        environment: 
+            - ConnectionStrings__DefaultConnection-Server=postgis-db;Database=devdb;User Id=devdbuser;password=devdbpassword     
+
+           
+
     
 volumes:
     launchpad-db:

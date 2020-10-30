@@ -4,8 +4,8 @@
     <ProjectVersion>2.1</ProjectVersion>
     <DockerTargetOS>Linux</DockerTargetOS>
     <ProjectGuid>9bb56e8c-b373-4382-9444-74a1eb2c808c</ProjectGuid>
-    <DockerLaunchAction>LaunchBrowser</DockerLaunchAction>
-    <DockerServiceUrl>{Scheme}://localhost:{ServicePort}/weatherforecast</DockerServiceUrl>
+    <DockerLaunchAction>None</DockerLaunchAction>
+    <DockerServiceUrl>https://localhost:9001/</DockerServiceUrl>
     <DockerServiceName>postgisproject</DockerServiceName>
   </PropertyGroup>
   <ItemGroup>

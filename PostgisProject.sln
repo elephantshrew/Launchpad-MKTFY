@@ -11,6 +11,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Launchpad.Models", "Launchp
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Launchpad.Api", "Launchpad.Api\Launchpad.Api.csproj", "{6863F73E-F1ED-4087-9D96-ABF85C7C3C79}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Launchpad.Auth", "Launchpad.Auth\Launchpad.Auth.csproj", "{0FEC514B-C2AE-4F57-B208-DB5CD4893200}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{6863F73E-F1ED-4087-9D96-ABF85C7C3C79}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6863F73E-F1ED-4087-9D96-ABF85C7C3C79}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6863F73E-F1ED-4087-9D96-ABF85C7C3C79}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0FEC514B-C2AE-4F57-B208-DB5CD4893200}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0FEC514B-C2AE-4F57-B208-DB5CD4893200}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0FEC514B-C2AE-4F57-B208-DB5CD4893200}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0FEC514B-C2AE-4F57-B208-DB5CD4893200}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

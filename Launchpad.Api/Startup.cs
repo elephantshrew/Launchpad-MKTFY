@@ -5,10 +5,12 @@ using System.Threading.Tasks;
 using Launchpad.App;
 using Launchpad.App.Repositories;
 using Launchpad.App.Repositories.Interfaces;
+using Launchpad.Models.Entities;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Connections;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -37,7 +39,6 @@ namespace Launchpad.Api
                     b.MigrationsAssembly("Launchpad.App");
                 })
             );
-
 
             services.AddControllers();
 

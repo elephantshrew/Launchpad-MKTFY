@@ -6,6 +6,7 @@ using System.Text;
 
 namespace Launchpad.App
 {
+
     public class ApplicationDbContext : DbContext
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
