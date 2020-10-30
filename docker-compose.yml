@@ -12,9 +12,24 @@ services:
             - "25000:80"
             - "25001:443"
         environment: 
-            - ConnectionStrings__DefaultConnection-Server=postgis-db;Database=devdb;User Id=devdbuser;password=devdbpassword
+            - ConnectionStrings__DefaultConnection=Server=postgis-db;Database=devdb;User Id=devdbuser;password=devdbpassword
         depends_on:
             - "postgis-db"
+
+    postgis.auth:
+        restart: on-failure
+        image: ${DOCKER_REGISTRY-}postgis.auth
+        container_name: postgis.auth
+        build:
+            context: .
+            dockerfile: Launchpad.Auth/Dockerfile
+        ports:
+            - "27000:80"
+            - "27001:443"
+        environment: 
+            - ConnectionStrings__DefaultConnection=Server=postgis-db;Database=devdb;User Id=devdbuser;password=devdbpassword
+        depends_on:
+            - "postgis-db"            
 
     postgis-db:
         restart: on-failure
@@ -29,18 +44,7 @@ services:
         ports:
             - "26000:5432"
 
-    postgis.auth:
-        restart: on-failure
-        image: ${DOCKER_REGISTRY-}postgis.auth
-        container_name: postgis.auth
-        build:
-            context: .
-            dockerfile: Launchpad.Auth/Dockerfile
-        ports:
-            - "27000:80"
-            - "27001:443"
-        environment: 
-            - ConnectionStrings__DefaultConnection-Server=postgis-db;Database=devdb;User Id=devdbuser;password=devdbpassword     
+ 
 
            
 

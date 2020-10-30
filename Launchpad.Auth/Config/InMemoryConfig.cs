@@ -36,6 +36,22 @@ namespace Launchpad.Auth.Config
             }
             };
 
+        public static IEnumerable<ApiResource> ApiResources =>
+            new List<ApiResource>
+            {
+                        new ApiResource
+                        {
+                            Name = "launchpadapi",
+                            DisplayName = "Launchpad API",
+                            Scopes = { "launchpadapi.scope", "launchpadapi" }
+                        }
+            };
+
+        public static IEnumerable<ApiScope> ApiScopes =>
+            new List<ApiScope>
+            {
+                new ApiScope("launchpadapi.scope", "Launchpad API")
+            };
         public static IEnumerable<Client> GetClients() =>
             new List<Client>
             {
@@ -44,7 +60,7 @@ namespace Launchpad.Auth.Config
                     ClientId = "CompanyEmployee",
                     ClientSecrets = new [] { new Secret("WilliamSecret".Sha512())},
                     AllowedGrantTypes = GrantTypes.ResourceOwnerPassword,
-                    AllowedScopes = { IdentityServerConstants.StandardScopes.OpenId}
+                    AllowedScopes = { "Launchpadapi.scope", IdentityServerConstants.StandardScopes.OpenId}
                 }
 
             };

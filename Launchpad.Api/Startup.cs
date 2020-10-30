@@ -6,6 +6,8 @@ using Launchpad.App;
 using Launchpad.App.Repositories;
 using Launchpad.App.Repositories.Interfaces;
 using Launchpad.Models.Entities;
+using LaunchpadSept2020.App.Repositories;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Connections;
 using Microsoft.AspNetCore.Hosting;
@@ -40,10 +42,32 @@ namespace Launchpad.Api
                 })
             );
 
+            services.AddIdentity<User, IdentityRole>(options =>
+            {
+                options.Password.RequiredLength = 6;
+                options.Password.RequireLowercase = true;
+                options.Password.RequireUppercase = true;
+                options.Password.RequireNonAlphanumeric = false;
+                options.Password.RequireDigit = true;
+            })
+                .AddEntityFrameworkStores<ApplicationDbContext>()
+                .AddDefaultTokenProviders();
+
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            .AddIdentityServerAuthentication(options =>
+            {
+                options.Authority = Configuration.GetSection("Identity").GetValue<string>("Authority");
+
+                    // name of the API resource
+                    options.ApiName = "launchpadapi";
+                    options.RequireHttpsMetadata = false;
+                });
+
             services.AddControllers();
 
             //Add Repositories to dependency injection
             services.AddScoped<ICompanyRepository, CompanyRepository>();
+            services.AddScoped<IUserRepository, UserRepository>();
 
         }
 
@@ -59,9 +83,10 @@ namespace Launchpad.Api
 
             app.UseRouting();
 
+            app.UseAuthentication();
             app.UseAuthorization();
 
-            UpdateDatabase(app);
+            //UpdateDatabase(app);
 
             app.UseEndpoints(endpoints =>
             {
