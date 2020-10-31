@@ -21,6 +21,7 @@ namespace Launchpad.Auth
         }
 
         public IConfiguration Configuration { get; }
+
         // This method gets called by the runtime. Use this method to add services to the container.
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
@@ -29,7 +30,7 @@ namespace Launchpad.Auth
             //var migrationAssembly = typeof(Startup).GetTypeInfo().Assembly.GetName().Name;
 
             services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseNpgsql("Host = postgis-db; Port = 5432; Database = devdb; User Id = devdbuser; Password = devdbpassword",
+                options.UseNpgsql(Configuration.GetConnectionString("DefaultConnection"),
                 b =>
                 {
                     b.MigrationsAssembly("Launchpad.App");
@@ -40,27 +41,48 @@ namespace Launchpad.Auth
             .AddEntityFrameworkStores<ApplicationDbContext>();
             //.AddDefaultTokenProviders();
 
-            var x = services.AddIdentityServer(option =>
+            //var x = services.AddIdentityServer(option =>
+            //{
+            //    option.IssuerUri = Configuration.GetSection("Identity").GetValue<string>("Authority");
+            //})
+            //    .AddTestUsers(InMemoryConfig.GetUsers())
+            //    .AddInMemoryClients(InMemoryConfig.GetClients())
+            //    .AddConfigurationStore(opt =>
+            //    {
+            //        opt.ConfigureDbContext = c =>
+            //        c.UseNpgsql(Configuration.GetConnectionString("DefaultConnection"),
+            //        sql => sql.MigrationsAssembly("Launchpad.App"));
+            //    })
+                //.AddOperationalStore(opt =>
+                // {
+                //     opt.ConfigureDbContext = c =>
+                //     c.UseNpgsql(Configuration.GetConnectionString("DefaultConnection"),
+                //     sql => sql.MigrationsAssembly("Launchpad.App"));
+                // })
+            //    .AddDeveloperSigningCredential()
+            //    .AddAspNetIdentity<User>();
+
+            services.AddIdentityServer(option =>
             {
                 option.IssuerUri = Configuration.GetSection("Identity").GetValue<string>("Authority");
             })
-                .AddTestUsers(InMemoryConfig.GetUsers())
-                .AddInMemoryClients(InMemoryConfig.GetClients())
-                .AddConfigurationStore(opt =>
-                {
-                    opt.ConfigureDbContext = c =>
-                    c.UseNpgsql(Configuration.GetConnectionString("DefaultConnection"),
-                    sql => sql.MigrationsAssembly("Launchpad.App"));
-                })
                 .AddOperationalStore(opt =>
-                 {
-                     opt.ConfigureDbContext = c =>
-                     c.UseNpgsql(Configuration.GetConnectionString("DefaultConnection"),
-                     sql => sql.MigrationsAssembly("Launchpad.App"));
-                 })
-                .AddDeveloperSigningCredential()
-                .AddAspNetIdentity<User>();
-                
+                    {
+                        opt.ConfigureDbContext = c =>
+                        c.UseNpgsql(Configuration.GetConnectionString("DefaultConnection"),
+                        sql => sql.MigrationsAssembly("Launchpad.App"));
+                                })
+            .AddInMemoryIdentityResources(InMemoryConfig.GetIdentityResources())
+        //.AddTestUsers(InMemoryConfig.GetUsers())
+    
+
+            .AddDeveloperSigningCredential()
+            .AddInMemoryApiResources(InMemoryConfig.ApiResources)
+            .AddInMemoryApiScopes(InMemoryConfig.ApiScopes)
+            .AddInMemoryIdentityResources(InMemoryConfig.GetIdentityResources())
+            .AddInMemoryClients(InMemoryConfig.GetClients())
+            .AddAspNetIdentity<User>();
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

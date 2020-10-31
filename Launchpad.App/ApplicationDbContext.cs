@@ -26,10 +26,10 @@ namespace Launchpad.App
         {
 
         }
-        protected override void OnModelCreating(ModelBuilder builder)
-        {
-            base.OnModelCreating(builder);
-        }
+        //protected override void OnModelCreating(ModelBuilder builder)
+        //{
+        //    base.OnModelCreating(builder);
+        //}
         public DbSet<Company> Companies { get; set; }
     }
 }
