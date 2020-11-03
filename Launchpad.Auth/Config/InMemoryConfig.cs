@@ -57,10 +57,10 @@ namespace Launchpad.Auth.Config
             {
                 new Client
                 {
-                    ClientId = "CompanyEmployee",
-                    ClientSecrets = new [] { new Secret("WilliamSecret".Sha512())},
+                    ClientId = "mobile",
                     AllowedGrantTypes = GrantTypes.ResourceOwnerPassword,
-                    AllowedScopes = { "Launchpadapi.scope", IdentityServerConstants.StandardScopes.OpenId}
+                    ClientSecrets = new [] { new Secret("oVfHFTfwM3wjH826GN6fgIJUJ370cmzj".Sha256())},
+                    AllowedScopes = { "launchpadapi.scope", IdentityServerConstants.StandardScopes.OpenId}
                 }
 
             };

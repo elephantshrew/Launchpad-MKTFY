@@ -13,6 +13,7 @@ services:
             - "25001:443"
         environment: 
             - ConnectionStrings__DefaultConnection=Server=postgis-db;Database=devdb;User Id=devdbuser;password=devdbpassword
+            - Identity__Authority=http://postgis.auth
         depends_on:
             - "postgis-db"
 
@@ -28,6 +29,7 @@ services:
             - "27001:443"
         environment: 
             - ConnectionStrings__DefaultConnection=Server=postgis-db;Database=devdb;User Id=devdbuser;password=devdbpassword
+            - Identity__Authority=http://postgis.auth
         depends_on:
             - "postgis-db"            
 
@@ -48,6 +50,6 @@ services:
 
            
 
-    
+   
 volumes:
     launchpad-db:

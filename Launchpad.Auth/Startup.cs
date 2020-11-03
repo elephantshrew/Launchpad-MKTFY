@@ -72,14 +72,13 @@ namespace Launchpad.Auth
                         c.UseNpgsql(Configuration.GetConnectionString("DefaultConnection"),
                         sql => sql.MigrationsAssembly("Launchpad.App"));
                                 })
-            .AddInMemoryIdentityResources(InMemoryConfig.GetIdentityResources())
-        //.AddTestUsers(InMemoryConfig.GetUsers())
     
 
             .AddDeveloperSigningCredential()
+            .AddInMemoryIdentityResources(InMemoryConfig.GetIdentityResources())
+            .AddTestUsers(InMemoryConfig.GetUsers())
             .AddInMemoryApiResources(InMemoryConfig.ApiResources)
             .AddInMemoryApiScopes(InMemoryConfig.ApiScopes)
-            .AddInMemoryIdentityResources(InMemoryConfig.GetIdentityResources())
             .AddInMemoryClients(InMemoryConfig.GetClients())
             .AddAspNetIdentity<User>();
 
