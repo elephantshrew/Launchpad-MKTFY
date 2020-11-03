@@ -31,5 +31,6 @@ namespace Launchpad.App
         //    base.OnModelCreating(builder);
         //}
         public DbSet<Company> Companies { get; set; }
+        public DbSet<User> UserEntities { get; set; }
     }
 }

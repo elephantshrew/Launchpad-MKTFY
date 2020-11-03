@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
+using System.Runtime.InteropServices.ComTypes;
 using System.Threading.Tasks;
 using IdentityModel.Client; //IdentityModel is a .NET standard helper library for claims-based identity, OAuth 2.0 and OpenID Connect
 using Launchpad.App.Repositories.Interfaces;
@@ -19,14 +20,19 @@ namespace Launchpad.Api.Controllers
     public class AccountController : ControllerBase
     {
         private readonly SignInManager<User> _signInManager;
+        private readonly UserManager<User> _userManager;
         private readonly IConfiguration _configuration;
         private readonly IUserRepository _userRepository;
 
-        public AccountController(SignInManager<User> signInManager, IConfiguration configuration, IUserRepository userRepository)
+
+
+        public AccountController(SignInManager<User> signInManager, UserManager<User> userManager, IConfiguration configuration, IUserRepository userRepository)
         {
             _signInManager = signInManager;
             _configuration = configuration;
             _userRepository = userRepository;
+            _userManager = userManager;
+
         }
 
         [HttpPost("login")]
@@ -75,5 +81,30 @@ namespace Launchpad.Api.Controllers
             }
 
         }
+        //ok what do I need
+        //need to take in registration fields from the request body, return response code and response body in json, asynchronously
+
+        [HttpPost("register")]
+        public async Task<ActionResult<UserRegisterResponseVM>> Register([FromBody] UserRegisterVM vm)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest("Invalid Data");
+
+            //var user = new User(vm);
+            var user = new User
+            {
+                UserName = vm.Email,
+                Email = vm.Email,
+                FirstName = vm.FirstName,
+                LastName = vm.LastName
+            };
+            var result = await _userManager.CreateAsync(user);
+            result = await _userManager.AddPasswordAsync(user, vm.Password);
+            if (result.Succeeded)
+                return Ok(new UserRegisterResponseVM("200 ok, awesome!"));
+            else
+                return BadRequest("Register failed :(");
+        }
+
     }
 }

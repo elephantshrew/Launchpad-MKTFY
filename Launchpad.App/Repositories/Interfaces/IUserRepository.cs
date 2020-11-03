@@ -10,5 +10,6 @@ namespace Launchpad.App.Repositories.Interfaces
     public interface IUserRepository
     {
         Task<UserVM> GetUserByEmail(string email);
+        //Task<UserVM> Create(UserRegisterVM user);
     }
 }
