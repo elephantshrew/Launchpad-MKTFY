@@ -17,6 +17,12 @@ namespace Launchpad.App.Seeds
                 await roleManager.CreateAsync(new IdentityRole("administrator"));
             }
 
+            roleResult = await roleManager.RoleExistsAsync("user");
+            if (!roleResult)
+            {
+                await roleManager.CreateAsync(new IdentityRole("user"));
+            }
+
             var userResult = await userManager.FindByNameAsync("william@launchpadbyvog.com");
             if (userResult == null)
             {

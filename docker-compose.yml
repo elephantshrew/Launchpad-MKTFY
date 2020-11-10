@@ -14,6 +14,7 @@ services:
         environment: 
             - ConnectionStrings__DefaultConnection=Server=postgis-db;Database=devdb;User Id=devdbuser;password=devdbpassword
             - Identity__Authority=http://postgis.auth
+            - SENDGRID_API_KEY=${SENDGRID_API_KEY}
         depends_on:
             - "postgis-db"
 

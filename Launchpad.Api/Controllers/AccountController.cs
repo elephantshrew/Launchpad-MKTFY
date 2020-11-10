@@ -12,6 +12,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
+using SendGrid;
+using SendGrid.Helpers.Mail;
 
 namespace Launchpad.Api.Controllers
 {
@@ -23,15 +25,17 @@ namespace Launchpad.Api.Controllers
         private readonly UserManager<User> _userManager;
         private readonly IConfiguration _configuration;
         private readonly IUserRepository _userRepository;
+        private ILookupNormalizer _normalizer;
 
 
 
-        public AccountController(SignInManager<User> signInManager, UserManager<User> userManager, IConfiguration configuration, IUserRepository userRepository)
+        public AccountController(SignInManager<User> signInManager, UserManager<User> userManager, IConfiguration configuration, IUserRepository userRepository, ILookupNormalizer normalizer)
         {
             _signInManager = signInManager;
             _configuration = configuration;
             _userRepository = userRepository;
             _userManager = userManager;
+            _normalizer = normalizer;
 
         }
 
@@ -76,6 +80,8 @@ namespace Launchpad.Api.Controllers
                     return BadRequest("Cannot grant access to user account");
                 }
 
+
+
                 return Ok(new LoginResponseVM(tokenResponse, user));
 
             }
@@ -96,14 +102,51 @@ namespace Launchpad.Api.Controllers
                 UserName = vm.Email,
                 Email = vm.Email,
                 FirstName = vm.FirstName,
-                LastName = vm.LastName
+                LastName = vm.LastName,
+                NormalizedEmail = _normalizer.NormalizeEmail(vm.Email)
             };
-            var result = await _userManager.CreateAsync(user);
-            result = await _userManager.AddPasswordAsync(user, vm.Password);
+            var result = await _userManager.CreateAsync(user, vm.Password);
+            //result = await _userManager.AddPasswordAsync(user, vm.Password);
             if (result.Succeeded)
+            {
+                await _userManager.AddToRoleAsync(user, "user");
+                //normalize
+                await _userManager.UpdateNormalizedEmailAsync(user);
+
+                //generate email confirmation token
+                var confirmation = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+
+                //email token to user
+                var apiKey = Environment.GetEnvironmentVariable("SENDGRID_API_KEY");
+                var client = new SendGridClient(apiKey);
+                var from = new EmailAddress("willcho128@gmail.com", "Example User");
+                var subject = "You are now registered!";
+                var to = new EmailAddress(vm.Email, vm.FirstName);
+                var plainTextContent = "Confirmation: " + confirmation;
+                var htmlContent = "Confirmation: " + confirmation;
+                var msg =  MailHelper.CreateSingleEmail(from, to, subject, plainTextContent, htmlContent);
+                var response = await client.SendEmailAsync(msg);
+
                 return Ok(new UserRegisterResponseVM("200 ok, awesome!"));
+
+
+
+            }
             else
                 return BadRequest("Register failed :(");
+        }
+
+        [HttpPatch("Verification")]
+        public async Task<IActionResult> Verification(VerifyVM vm)
+        {
+            var user = await _userManager.FindByEmailAsync(vm.Email);
+            if (user == null)
+                return BadRequest("Cannot find email");
+            var result = await _userManager.ConfirmEmailAsync(user, vm.Token);
+            if (result.Succeeded)
+                return Ok("Verified");
+            else
+                return BadRequest("Email confirmation failed");
         }
 
     }
