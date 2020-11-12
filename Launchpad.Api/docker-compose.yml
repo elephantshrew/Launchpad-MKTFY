@@ -1,0 +1,56 @@
+version: '3.4'
+
+services:
+    postgisproject:
+        restart: on-failure
+        image: ${DOCKER_REGISTRY-}postgisproject
+        container_name: "postgisproject"
+        build:
+            context: .
+            dockerfile: Launchpad.Api/Dockerfile
+        ports:
+            - "25000:80"
+            - "25001:443"
+        environment: 
+            - ConnectionStrings__DefaultConnection=Server=postgis-db;Database=devdb;User Id=devdbuser;password=devdbpassword
+            - Identity__Authority=http://postgis.auth
+            - SENDGRID_API_KEY=${SENDGRID_API_KEY}
+        depends_on:
+            - "postgis-db"
+
+    postgis.auth:
+        restart: on-failure
+        image: ${DOCKER_REGISTRY-}postgis.auth
+        container_name: postgis.auth
+        build:
+            context: .
+            dockerfile: Launchpad.Auth/Dockerfile
+        ports:
+            - "27000:80"
+            - "27001:443"
+        environment: 
+            - ConnectionStrings__DefaultConnection=Server=postgis-db;Database=devdb;User Id=devdbuser;password=devdbpassword
+            - Identity__Authority=http://postgis.auth
+        depends_on:
+            - "postgis-db"            
+
+    postgis-db:
+        restart: on-failure
+        image: postgis/postgis:latest
+        container_name: "postgis-db"
+        environment:
+            - POSTGRES_USER=devdbuser
+            - POSTGRES_DB=devdb
+            - POSTGRES_PASSWORD=devdbpassword
+        volumes:
+            - launchpad-db:/var/lib/postgresql/data
+        ports:
+            - "26000:5432"
+
+ 
+
+           
+
+   
+volumes:
+    launchpad-db:

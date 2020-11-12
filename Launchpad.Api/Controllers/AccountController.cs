@@ -70,7 +70,7 @@ namespace Launchpad.Api.Controllers
                     Address = authority + "/connect/token",
                     UserName = login.Email,
                     Password = login.Password,
-                    ClientId = login.ClientId,
+                    ClientId = "mobile",
                     ClientSecret = "oVfHFTfwM3wjH826GN6fgIJUJ370cmzj",
                     Scope = "launchpadapi.scope"
                 }).ConfigureAwait(false);
@@ -137,7 +137,7 @@ namespace Launchpad.Api.Controllers
         }
 
         [HttpPatch("Verification")]
-        public async Task<IActionResult> Verification(VerifyVM vm)
+        public async Task<IActionResult> Verification([FromBody] VerifyVM vm)
         {
             var user = await _userManager.FindByEmailAsync(vm.Email);
             if (user == null)
@@ -148,6 +148,48 @@ namespace Launchpad.Api.Controllers
             else
                 return BadRequest("Email confirmation failed");
         }
+
+        [HttpPost("ForgotPassword")]
+        public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordVM vm)
+        {
+            var user = await _userManager.FindByEmailAsync(vm.Email);
+            if (user == null)
+                return BadRequest("Cannot find email");
+            var resetToken = await _userManager.GeneratePasswordResetTokenAsync(user);
+
+            //email token to user
+            var apiKey = Environment.GetEnvironmentVariable("SENDGRID_API_KEY");
+            var client = new SendGridClient(apiKey);
+            var from = new EmailAddress("willcho128@gmail.com", "Example User");
+            var subject = "You are now registered!";
+            var to = new EmailAddress(user.Email, user.FirstName);
+            var plainTextContent = "Reset token: " + resetToken;
+            var htmlContent = "Reset token : " + resetToken;
+            var msg = MailHelper.CreateSingleEmail(from, to, subject, plainTextContent, htmlContent);
+            var response = await client.SendEmailAsync(msg);
+            if (response.StatusCode == System.Net.HttpStatusCode.Accepted)
+                return Ok("Verified");
+            else
+                return BadRequest(response.StatusCode);
+                   
+        }
+
+        [HttpPost("Reset")]
+        public async Task<IActionResult> Reset([FromBody] ResetPasswordVM vm)
+        {
+            var user = await _userManager.FindByEmailAsync(vm.Email);
+            if (user == null)
+                return BadRequest("Cannot find email");
+            var result = await _userManager.ResetPasswordAsync(user, vm.ResetToken, vm.NewPassword);
+            if (result.Succeeded)
+                return Ok("Password successfully reset");
+            else
+                return BadRequest("Could not reset password");
+
+
+        }
+
+
 
     }
 }

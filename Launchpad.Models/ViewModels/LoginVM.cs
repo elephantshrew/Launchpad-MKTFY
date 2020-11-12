@@ -11,7 +11,7 @@ namespace Launchpad.Models.ViewModels
         public string Email { get; set; }
         [Required]
         public string Password { get; set; }
-        [Required]
-        public string ClientId { get; set; }
+        //[Required]
+        //public string ClientId { get; set; }
     }
 }
