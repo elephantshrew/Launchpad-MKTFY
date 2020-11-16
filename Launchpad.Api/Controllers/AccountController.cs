@@ -5,12 +5,14 @@ using System.Net.Http;
 using System.Runtime.InteropServices.ComTypes;
 using System.Threading.Tasks;
 using IdentityModel.Client; //IdentityModel is a .NET standard helper library for claims-based identity, OAuth 2.0 and OpenID Connect
+using Launchpad.App;
 using Launchpad.App.Repositories.Interfaces;
 using Launchpad.Models.Entities;
 using Launchpad.Models.ViewModels;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using SendGrid;
 using SendGrid.Helpers.Mail;
@@ -25,18 +27,20 @@ namespace Launchpad.Api.Controllers
         private readonly UserManager<User> _userManager;
         private readonly IConfiguration _configuration;
         private readonly IUserRepository _userRepository;
-        private ILookupNormalizer _normalizer;
+        private readonly ILookupNormalizer _normalizer;
+        private readonly ApplicationDbContext _context;
+        private readonly ICategoryRepository _categoryRepository;
 
 
-
-        public AccountController(SignInManager<User> signInManager, UserManager<User> userManager, IConfiguration configuration, IUserRepository userRepository, ILookupNormalizer normalizer)
+        public AccountController(SignInManager<User> signInManager, UserManager<User> userManager, IConfiguration configuration, IUserRepository userRepository, ILookupNormalizer normalizer, ApplicationDbContext context, ICategoryRepository categoryRepository)
         {
             _signInManager = signInManager;
             _configuration = configuration;
             _userRepository = userRepository;
             _userManager = userManager;
             _normalizer = normalizer;
-
+            _context = context;
+            _categoryRepository = categoryRepository;
         }
 
         [HttpPost("login")]
@@ -186,9 +190,22 @@ namespace Launchpad.Api.Controllers
             else
                 return BadRequest("Could not reset password");
 
-
         }
 
+        [HttpGet("Category")]
+        public async Task<ActionResult<List<CategoryVM>>> ListAllCategories()
+        {
+            try
+            {
+                var result = await _categoryRepository.GetAll();
+                return result;
+
+            }
+            catch
+            {
+                return StatusCode(500);
+            }
+        }
 
 
     }

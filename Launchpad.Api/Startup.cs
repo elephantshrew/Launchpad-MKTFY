@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Launchpad.App;
 using Launchpad.App.Repositories;
 using Launchpad.App.Repositories.Interfaces;
+using Launchpad.App.Seeds;
 using Launchpad.Models.Entities;
 using LaunchpadSept2020.App.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -69,6 +70,8 @@ namespace Launchpad.Api
             //Add Repositories to dependency injection
             services.AddScoped<ICompanyRepository, CompanyRepository>();
             services.AddScoped<IUserRepository, UserRepository>();
+            services.AddScoped<ICategoryRepository, CategoryRepository>();
+            services.AddScoped<CategorySeeder>();
 
         }
 

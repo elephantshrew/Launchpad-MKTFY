@@ -17,7 +17,7 @@ namespace Launchpad.Api
 {
     public class Program
     {
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
             var host = CreateHostBuilder(args).Build();
 
@@ -32,6 +32,9 @@ namespace Launchpad.Api
 
                     context.Database.Migrate();
                     Task.Run(async () => await UserAndRoleSeeder.Seed(roleManager, userManager)).Wait();
+
+                    var seeder = services.GetRequiredService<CategorySeeder>();
+                    await seeder.Seed();
                 }
                 catch (Exception ex)
                 {
