@@ -35,6 +35,8 @@ namespace Launchpad.Api
 
                     var seeder = services.GetRequiredService<CategorySeeder>();
                     await seeder.Seed();
+                    var citySeeder = services.GetRequiredService<CitySeeder>();
+                    await citySeeder.Seed();
                 }
                 catch (Exception ex)
                 {

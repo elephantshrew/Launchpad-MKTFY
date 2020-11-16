@@ -30,9 +30,10 @@ namespace Launchpad.Api.Controllers
         private readonly ILookupNormalizer _normalizer;
         private readonly ApplicationDbContext _context;
         private readonly ICategoryRepository _categoryRepository;
+        private readonly ICityRepository _cityRepository;
 
 
-        public AccountController(SignInManager<User> signInManager, UserManager<User> userManager, IConfiguration configuration, IUserRepository userRepository, ILookupNormalizer normalizer, ApplicationDbContext context, ICategoryRepository categoryRepository)
+        public AccountController(SignInManager<User> signInManager, UserManager<User> userManager, IConfiguration configuration, IUserRepository userRepository, ILookupNormalizer normalizer, ApplicationDbContext context, ICategoryRepository categoryRepository, ICityRepository cityRepository)
         {
             _signInManager = signInManager;
             _configuration = configuration;
@@ -41,6 +42,7 @@ namespace Launchpad.Api.Controllers
             _normalizer = normalizer;
             _context = context;
             _categoryRepository = categoryRepository;
+            _cityRepository = cityRepository;
         }
 
         [HttpPost("login")]
@@ -206,6 +208,22 @@ namespace Launchpad.Api.Controllers
                 return StatusCode(500);
             }
         }
+
+        [HttpGet("City")]
+        public async Task<ActionResult<List<CityVM>>> ListAllCities()
+        {
+            try
+            {
+                var result = await _cityRepository.GetAll();
+                return result;
+            }
+            catch
+            {
+                return StatusCode(500);
+            }
+
+        }
+
 
 
     }

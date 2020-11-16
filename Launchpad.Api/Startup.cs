@@ -71,7 +71,9 @@ namespace Launchpad.Api
             services.AddScoped<ICompanyRepository, CompanyRepository>();
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<ICategoryRepository, CategoryRepository>();
+            services.AddScoped<ICityRepository, CityRepository>();
             services.AddScoped<CategorySeeder>();
+            services.AddScoped<CitySeeder>();
 
         }
 
