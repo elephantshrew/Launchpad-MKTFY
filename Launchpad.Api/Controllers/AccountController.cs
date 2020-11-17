@@ -248,15 +248,31 @@ namespace Launchpad.Api.Controllers
         [HttpGet("User/{id}")]
         public async Task<ActionResult<UserVM>> UserById(string id)
         {
-            var result = await _userRepository.GetUserById(id);
+            var result = await _userRepository.GetUserVMById(id);
             if (result == null)
                 return BadRequest("User not found");
             else
-                return result;
-            
-
+                return result;         
         }
 
+        [HttpPatch("User/{id}")]
+        public async Task<ActionResult<UserVM>> PatchUserById([FromBody] UserPatchVM patch, [FromRoute] string id)
+        {
+            var result = await _userRepository.GetUserById(id);
+            var validationResult = await _userManager.CheckPasswordAsync(result, patch.Password);
+
+            if (result == null)
+                return BadRequest("User not found");
+            else if (validationResult == false)
+            {
+                return BadRequest("Wrong password");
+            }
+            else
+            {
+                return await _userRepository.PatchUser(id, patch);
+            }
+
+        }
 
 
     }
