@@ -86,7 +86,12 @@ namespace Launchpad.Api.Controllers
                     return BadRequest("Cannot grant access to user account");
                 }
 
-
+                var usr = await _context.Users.SingleOrDefaultAsync(b => b.Email == login.Email);
+                if (usr != null)
+                {
+                    usr.LastLogin = System.DateTime.UtcNow;
+                    await _context.SaveChangesAsync();
+                }
 
                 return Ok(new LoginResponseVM(tokenResponse, user));
 
