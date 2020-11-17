@@ -99,8 +99,19 @@ namespace Launchpad.Api.Controllers
         [HttpPost("register")]
         public async Task<ActionResult<UserRegisterResponseVM>> Register([FromBody] UserRegisterVM vm)
         {
-            if (!ModelState.IsValid || vm.Password != vm.PasswordConfirmation)
+            if (!ModelState.IsValid)
                 return BadRequest("Invalid Data");
+            else if (vm.Password != vm.PasswordConfirmation)
+            {
+                return BadRequest("Password and password confirmation do not match");
+            }
+            else
+            {
+                var entity = await _context.Cities.SingleOrDefaultAsync(b => b.Name == vm.City);
+                if (entity == null)
+                    return BadRequest("Could not find city");
+
+            }
 
             //var user = new User(vm);
             var user = new User
@@ -111,7 +122,8 @@ namespace Launchpad.Api.Controllers
                 LastName = vm.LastName,
                 NormalizedEmail = _normalizer.NormalizeEmail(vm.Email),
                 Tos = vm.Tos,
-                PhoneNumber = vm.Phone
+                PhoneNumber = vm.Phone,
+                City = vm.City
             };
             var result = await _userManager.CreateAsync(user, vm.Password);
             //result = await _userManager.AddPasswordAsync(user, vm.Password);

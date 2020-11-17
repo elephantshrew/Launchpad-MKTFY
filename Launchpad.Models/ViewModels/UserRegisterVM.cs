@@ -14,9 +14,10 @@ namespace Launchpad.Models.ViewModels
         [Required]
         public String Email { get; set; }
         [Required]
-        public String Password { get; set;}
+        public String Password { get; set; }
         public String PasswordConfirmation { get; set; }
         public DateTime Tos { get; set; }
         public String Phone { get; set; }
+        public String City { get; set; }
     }
 }
