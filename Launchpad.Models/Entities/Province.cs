@@ -17,6 +17,7 @@ namespace Launchpad.Models.Entities
         public string Name { get; set; }
         public Guid Id { get; set; }
         public Country Country { get; set; }
+        public Guid CountryId { get; set; }
         public ICollection<City> Cities { get; set; }
     }
 }

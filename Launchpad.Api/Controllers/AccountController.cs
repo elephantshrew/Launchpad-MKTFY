@@ -99,7 +99,7 @@ namespace Launchpad.Api.Controllers
         [HttpPost("register")]
         public async Task<ActionResult<UserRegisterResponseVM>> Register([FromBody] UserRegisterVM vm)
         {
-            if (!ModelState.IsValid)
+            if (!ModelState.IsValid || vm.Password != vm.PasswordConfirmation)
                 return BadRequest("Invalid Data");
 
             //var user = new User(vm);
@@ -109,7 +109,9 @@ namespace Launchpad.Api.Controllers
                 Email = vm.Email,
                 FirstName = vm.FirstName,
                 LastName = vm.LastName,
-                NormalizedEmail = _normalizer.NormalizeEmail(vm.Email)
+                NormalizedEmail = _normalizer.NormalizeEmail(vm.Email),
+                Tos = vm.Tos,
+                PhoneNumber = vm.Phone
             };
             var result = await _userManager.CreateAsync(user, vm.Password);
             //result = await _userManager.AddPasswordAsync(user, vm.Password);

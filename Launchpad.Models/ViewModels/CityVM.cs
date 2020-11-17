@@ -7,11 +7,15 @@ namespace Launchpad.Models.ViewModels
 {
     public class CityVM
     {
-        public CityVM(City city)
+        public CityVM(string name, string provinceName, string countryName)
         {
-            Name = city.Name;
+            Name = name;
+            ProvinceName = provinceName;
+            CountryName = countryName;
         }
 
         public string Name {get; set;}
+        public string ProvinceName { get; set; }
+        public string CountryName { get; set; }
     }
 }

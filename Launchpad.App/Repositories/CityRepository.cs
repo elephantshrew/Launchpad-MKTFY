@@ -26,7 +26,9 @@ namespace Launchpad.App.Repositories
 
             foreach(var result in results)
             {
-                models.Add(new CityVM(result));
+                var province = await _context.Provinces.SingleAsync(b => b.Id == result.ProvinceId);
+                var country = await _context.Countries.SingleAsync(b => b.Id == province.CountryId);
+                models.Add(new CityVM(result.Name, province.Name, country.Name));
             }
 
             return models;

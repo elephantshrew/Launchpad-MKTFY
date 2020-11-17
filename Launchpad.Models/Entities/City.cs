@@ -19,5 +19,6 @@ namespace Launchpad.Models.Entities
         public string Name { get; set; } 
         public Guid Id { get; set; }
         public Province Province { get; set; }
+        public Guid ProvinceId { get; set; }
     }
 }

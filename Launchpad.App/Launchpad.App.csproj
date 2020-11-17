@@ -7,6 +7,10 @@
   <ItemGroup>
     <Compile Remove="Migrations\20201116223940_CountryName.cs" />
     <Compile Remove="Migrations\20201116223940_CountryName.Designer.cs" />
+    <Compile Remove="Migrations\20201117040434_AddTosAndLastLogin.cs" />
+    <Compile Remove="Migrations\20201117040434_AddTosAndLastLogin.Designer.cs" />
+    <Compile Remove="Migrations\20201117040627_AddTosAndLastLoginAndCityForeignKeyProperties.cs" />
+    <Compile Remove="Migrations\20201117040627_AddTosAndLastLoginAndCityForeignKeyProperties.Designer.cs" />
   </ItemGroup>
 
   <ItemGroup>
