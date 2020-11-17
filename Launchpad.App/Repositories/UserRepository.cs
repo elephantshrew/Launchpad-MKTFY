@@ -39,5 +39,19 @@ namespace LaunchpadSept2020.App.Repositories
             return model;
         }
 
+        public async Task<UserVM> GetUserById(string id)
+        {
+            var result = await _context.Users.SingleOrDefaultAsync(b => b.Id == id);
+            if (result != null)
+            {
+                return new UserVM(result);
+            }
+            else
+            {
+                return null;
+            }
+
+        }
+
     }
 }

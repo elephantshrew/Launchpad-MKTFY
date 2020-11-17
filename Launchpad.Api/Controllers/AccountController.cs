@@ -213,6 +213,8 @@ namespace Launchpad.Api.Controllers
 
         }
 
+        [HttpPatch("")]
+
         [HttpGet("Category")]
         public async Task<ActionResult<List<CategoryVM>>> ListAllCategories()
         {
@@ -240,6 +242,18 @@ namespace Launchpad.Api.Controllers
             {
                 return StatusCode(500);
             }
+
+        }
+
+        [HttpGet("User/{id}")]
+        public async Task<ActionResult<UserVM>> UserById(string id)
+        {
+            var result = await _userRepository.GetUserById(id);
+            if (result == null)
+                return BadRequest("User not found");
+            else
+                return result;
+            
 
         }
 

@@ -13,6 +13,8 @@ namespace Launchpad.Models.ViewModels
             Email = src.Email;
             FirstName = src.FirstName;
             LastName = src.LastName;
+            Phone = src.PhoneNumber;
+            City = src.City;
         }
 
         public String Id { get; set; }
@@ -22,6 +24,9 @@ namespace Launchpad.Models.ViewModels
         public string FirstName { get; set; }
 
         public string LastName { get; set; }
+        public string City { get; set; }
+        public string Phone { get; set; }
+        
     }
 }
 
