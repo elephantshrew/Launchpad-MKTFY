@@ -8,6 +8,7 @@ namespace Launchpad.Models.ViewModels
 
     public class CompanyVM
     {
+        public CompanyVM() { }
         public CompanyVM(Company src)
         {
             Id = src.Id;

@@ -11,6 +11,8 @@
     <Compile Remove="Migrations\20201117040434_AddTosAndLastLogin.Designer.cs" />
     <Compile Remove="Migrations\20201117040627_AddTosAndLastLoginAndCityForeignKeyProperties.cs" />
     <Compile Remove="Migrations\20201117040627_AddTosAndLastLoginAndCityForeignKeyProperties.Designer.cs" />
+    <Compile Remove="Migrations\20201125160237_ModifyListing.cs" />
+    <Compile Remove="Migrations\20201125160237_ModifyListing.Designer.cs" />
   </ItemGroup>
 
   <ItemGroup>

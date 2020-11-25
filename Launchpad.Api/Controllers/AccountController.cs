@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Runtime.InteropServices.ComTypes;
@@ -9,6 +10,7 @@ using Launchpad.App;
 using Launchpad.App.Repositories.Interfaces;
 using Launchpad.Models.Entities;
 using Launchpad.Models.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -213,8 +215,8 @@ namespace Launchpad.Api.Controllers
 
         }
 
-        [HttpPatch("")]
-
+        //[Authorize(Roles="user")]
+        [Authorize(AuthenticationSchemes = "Bearer")]
         [HttpGet("Category")]
         public async Task<ActionResult<List<CategoryVM>>> ListAllCategories()
         {
@@ -273,6 +275,46 @@ namespace Launchpad.Api.Controllers
             }
 
         }
+
+        [HttpPost("Listings")]
+        public async Task<ActionResult<ListingCreateVM>> CreateListing([FromForm] ListingCreateVM vm )
+        {     
+            long size = vm.Images.Sum(f => f.Length);
+            var city = await _context.Cities.SingleOrDefaultAsync(x => x.Name == vm.CityName);
+            var user = await _context.Users.SingleOrDefaultAsync(x => x.Email == vm.UserEmail);
+            var listing = new Listing(vm, city, user);
+            await _context.AddAsync(listing);
+
+            foreach (var image in vm.Images)
+            {
+                if (image.Length > 0)
+                {
+                    using (var memoryStream = new MemoryStream())
+                    {
+                        await image.CopyToAsync(memoryStream);
+                        var arrImg = memoryStream.ToArray();
+                        var img = new ListingImage(arrImg, listing);
+                        await _context.AddAsync(img);
+                    }
+                }
+            }
+            await _context.SaveChangesAsync();
+            return Ok(new { count = vm.Images.Count, size });
+        }
+
+        [HttpGet("FAQ")]
+        public async Task<ActionResult<String>> Faq([FromQuery] string filters, [FromBody] CompanyVM vm)
+        {
+            if(filters == null)
+            {
+                return Ok("filters was null " + vm.Name);
+            }
+            else
+            {
+                return Ok("filters was " + filters + " " + vm.Name);
+            }
+        }
+
 
 
     }
