@@ -9,7 +9,7 @@ EXPOSE 443
 
 FROM mcr.microsoft.com/dotnet/core/sdk:3.1-buster AS build
 WORKDIR /src
-COPY ["/Launchpad.Api.csproj", "Launchpad.Api/"]
+COPY ["Launchpad.Api/Launchpad.Api.csproj", "Launchpad.Api/"]
 RUN dotnet restore "Launchpad.Api/Launchpad.Api.csproj"
 COPY . .
 WORKDIR "/src/Launchpad.Api"
