@@ -10,7 +10,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Launchpad.App.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20201125152005_AddListingsAndImages")]
+    [Migration("20201126012405_AddListingsAndImages")]
     partial class AddListingsAndImages
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -106,9 +106,6 @@ namespace Launchpad.App.Migrations
 
                     b.Property<DateTime>("Updated")
                         .HasColumnType("timestamp without time zone");
-
-                    b.Property<Guid>("UserID")
-                        .HasColumnType("uuid");
 
                     b.Property<string>("UserId")
                         .HasColumnType("text");

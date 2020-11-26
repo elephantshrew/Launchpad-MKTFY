@@ -281,7 +281,7 @@ namespace Launchpad.Api.Controllers
         {     
             long size = vm.Images.Sum(f => f.Length);
             var city = await _context.Cities.SingleOrDefaultAsync(x => x.Name == vm.CityName);
-            var user = await _context.Users.SingleOrDefaultAsync(x => x.Email == vm.UserEmail);
+            var user = await _context.Users.SingleOrDefaultAsync(x => x.Id == vm.UserId); 
             var listing = new Listing(vm, city, user);
             await _context.AddAsync(listing);
 
@@ -300,6 +300,16 @@ namespace Launchpad.Api.Controllers
             }
             await _context.SaveChangesAsync();
             return Ok(new { count = vm.Images.Count, size });
+        }
+
+        [HttpGet("Listings/{id}")]
+        public async Task<ActionResult<Listing>> ShowSpecificListing(Guid id)
+        {
+            var listing = await _context.Listings.SingleOrDefaultAsync(x => x.Id == id);
+            var images = await _context.ListingImages.Where(x => x.ListingId == id).Select(p => p.Image).ToListAsync();
+
+            return Ok(new ListingResponseVM (listing.Title, listing.Description, listing.Price, images, listing.UserId));
+
         }
 
         [HttpGet("FAQ")]

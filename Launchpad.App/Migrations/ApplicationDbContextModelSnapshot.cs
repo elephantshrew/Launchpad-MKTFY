@@ -105,9 +105,6 @@ namespace Launchpad.App.Migrations
                     b.Property<DateTime>("Updated")
                         .HasColumnType("timestamp without time zone");
 
-                    b.Property<Guid>("UserID")
-                        .HasColumnType("uuid");
-
                     b.Property<string>("UserId")
                         .HasColumnType("text");
 

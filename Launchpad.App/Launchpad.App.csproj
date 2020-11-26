@@ -11,8 +11,18 @@
     <Compile Remove="Migrations\20201117040434_AddTosAndLastLogin.Designer.cs" />
     <Compile Remove="Migrations\20201117040627_AddTosAndLastLoginAndCityForeignKeyProperties.cs" />
     <Compile Remove="Migrations\20201117040627_AddTosAndLastLoginAndCityForeignKeyProperties.Designer.cs" />
+    <Compile Remove="Migrations\20201125152005_AddListingsAndImages.cs" />
+    <Compile Remove="Migrations\20201125152005_AddListingsAndImages.Designer.cs" />
     <Compile Remove="Migrations\20201125160237_ModifyListing.cs" />
     <Compile Remove="Migrations\20201125160237_ModifyListing.Designer.cs" />
+    <Compile Remove="Migrations\20201125161839_AddListingsAndImages.cs" />
+    <Compile Remove="Migrations\20201125161839_AddListingsAndImages.Designer.cs" />
+    <Compile Remove="Migrations\20201125162034_AddListingsAndImages.cs" />
+    <Compile Remove="Migrations\20201125162034_AddListingsAndImages.Designer.cs" />
+    <Compile Remove="Migrations\20201125162112_AddListingsAndImages.cs" />
+    <Compile Remove="Migrations\20201125162112_AddListingsAndImages.Designer.cs" />
+    <Compile Remove="Migrations\20201125162221_AddListingsAndImages.cs" />
+    <Compile Remove="Migrations\20201125162221_AddListingsAndImages.Designer.cs" />
   </ItemGroup>
 
   <ItemGroup>
