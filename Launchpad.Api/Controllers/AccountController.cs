@@ -305,12 +305,24 @@ namespace Launchpad.Api.Controllers
         [HttpGet("Listings/{id}")]
         public async Task<ActionResult<Listing>> ShowSpecificListing(Guid id)
         {
-            var listing = await _context.Listings.SingleOrDefaultAsync(x => x.Id == id);
+            var listing = await _context.Listings.Include(x => x.City).Include(x => x.User).Include(x => x.ListingImages).SingleOrDefaultAsync(x => x.Id == id);
             var images = await _context.ListingImages.Where(x => x.ListingId == id).Select(p => p.Image).ToListAsync();
 
-            return Ok(new ListingResponseVM (listing.Title, listing.Description, listing.Price, images, listing.UserId));
+            //return Ok(new ListingResponseVM (listing.Title, listing.Description, listing.Price, images, listing.UserId));
+            return Ok(listing);
 
         }
+
+        //[HttpPatch("Listings/{id}")]
+        ////is everyone using json patch document??? ORR https://hamidmosalla.com/2018/04/14/asp-net-core-api-patch-method-without-using-jsonpatchdocument/
+        ////nullable fields in inputvm, check for null
+        //public async Task<ActionResult<string>> EditListing(Guid id, string title, string description, decimal price, byte[] photos, status, string userId)
+        //{
+
+
+        //}
+
+
 
         [HttpGet("FAQ")]
         public async Task<ActionResult<String>> Faq([FromQuery] string filters, [FromBody] CompanyVM vm)
