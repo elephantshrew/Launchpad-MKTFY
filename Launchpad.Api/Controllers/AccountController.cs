@@ -308,36 +308,44 @@ namespace Launchpad.Api.Controllers
             var listing = await _context.Listings.Include(x => x.City).Include(x => x.User).Include(x => x.ListingImages).SingleOrDefaultAsync(x => x.Id == id);
             var images = await _context.ListingImages.Where(x => x.ListingId == id).Select(p => p.Image).ToListAsync();
 
-            //return Ok(new ListingResponseVM (listing.Title, listing.Description, listing.Price, images, listing.UserId));
-            return Ok(listing);
+            return Ok(new ListingResponseVM (listing.Title, listing.Description, listing.Price, images, listing.UserId));
+            //return Ok(listing);
 
         }
 
         //[HttpPatch("Listings/{id}")]
-        ////is everyone using json patch document??? ORR https://hamidmosalla.com/2018/04/14/asp-net-core-api-patch-method-without-using-jsonpatchdocument/
-        ////nullable fields in inputvm, check for null
-        //public async Task<ActionResult<string>> EditListing(Guid id, string title, string description, decimal price, byte[] photos, status, string userId)
+        //public async Task<ActionResult<string>> EditListing(Guid id, string title, string description, decimal? price, List<IFormFile> photos, bool status, string userId)
         //{
+        //    var listing = await _context.Listings.SingleOrDefaultAsync(x => x.Id == id);
+        //    if (listing == null)
+        //        return BadRequest("Id not found");
 
+        //    if (title != null)
+        //        listing.Title = title;
+        //    if (description != null)
+        //        listing.Description = description;
+        //    if (price != null)
+        //        listing.Price = (decimal)price;
+        //    //if (photos != null)
+        //    //    listing.ListingImages = null; 
+
+        //    //INCOMPLETE
 
         //}
 
 
 
         [HttpGet("FAQ")]
-        public async Task<ActionResult<String>> Faq([FromQuery] string filters, [FromBody] CompanyVM vm)
+        public async Task<ActionResult<List<FAQ>>> Faq([FromQuery] string filters)
         {
-            if(filters == null)
+            if (filters == null)
             {
-                return Ok("filters was null " + vm.Name);
+                return await _context.FAQs.ToListAsync(); 
             }
             else
             {
-                return Ok("filters was " + filters + " " + vm.Name);
+                return await _context.FAQs.Where(p => p.Title.Contains(filters) || p.Text.Contains(filters)).ToListAsync();
             }
         }
-
-
-
     }
 }

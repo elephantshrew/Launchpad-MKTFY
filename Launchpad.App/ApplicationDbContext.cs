@@ -38,6 +38,8 @@ namespace Launchpad.App
         public DbSet<City> Cities { get; set; }
         public DbSet<Listing> Listings { get; set; }
         public DbSet<ListingImage> ListingImages { get; set; }
+        public DbSet<FAQ> FAQs { get; set; }
+
        
     }
 }

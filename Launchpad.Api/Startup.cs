@@ -83,6 +83,7 @@ namespace Launchpad.Api
             services.AddScoped<IListingRepository, ListingRepository>();
             services.AddScoped<CategorySeeder>();
             services.AddScoped<CitySeeder>();
+            services.AddScoped<FAQSeeder>();
 
         }
 
