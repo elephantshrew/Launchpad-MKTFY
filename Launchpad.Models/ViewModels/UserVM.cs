@@ -14,7 +14,7 @@ namespace Launchpad.Models.ViewModels
             FirstName = src.FirstName;
             LastName = src.LastName;
             Phone = src.PhoneNumber;
-            City = src.City;
+            City = src.CityName;
         }
 
         public String Id { get; set; }

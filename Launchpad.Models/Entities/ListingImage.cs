@@ -1,5 +1,7 @@
-﻿using System;
+﻿using Launchpad.Models.ViewModels;
+using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 
 namespace Launchpad.Models.Entities
@@ -12,6 +14,28 @@ namespace Launchpad.Models.Entities
             Image = image;
             Listing = listing;
         }
+
+        public ListingImage(ListingImageCreateVM vm, Listing listing)
+        {
+            //using (var memoryStream = new MemoryStream())
+            //{
+            //    vm.Image.CopyToAsync(memoryStream);
+            //    Image = memoryStream.ToArray();            
+            //}
+            ConvertToBytes(vm);
+            Listing = listing;
+            ListingId = listing.Id;
+        }
+        public async void ConvertToBytes(ListingImageCreateVM vm)
+        {
+            using (var memoryStream = new MemoryStream())
+            {
+                await vm.Image.CopyToAsync(memoryStream);
+                Image = memoryStream.ToArray();
+            }
+
+        }
+
         public Guid Id { get; set; }
         public Boolean IsMainPic { get; set; }
         public byte[] Image { get; set; }

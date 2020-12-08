@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Runtime.InteropServices.ComTypes;
+using System.Text.Json;
 using System.Threading.Tasks;
 using IdentityModel.Client; //IdentityModel is a .NET standard helper library for claims-based identity, OAuth 2.0 and OpenID Connect
 using Launchpad.App;
@@ -130,7 +131,7 @@ namespace Launchpad.Api.Controllers
                 NormalizedEmail = _normalizer.NormalizeEmail(vm.Email),
                 Tos = vm.Tos,
                 PhoneNumber = vm.Phone,
-                City = vm.City
+                CityName = vm.City
             };
             var result = await _userManager.CreateAsync(user, vm.Password);
             //result = await _userManager.AddPasswordAsync(user, vm.Password);
@@ -277,12 +278,13 @@ namespace Launchpad.Api.Controllers
         }
 
         [HttpPost("Listings")]
-        public async Task<ActionResult<ListingCreateVM>> CreateListing([FromForm] ListingCreateVM vm )
-        {     
+        public async Task<ActionResult<Listing>> CreateListing([FromForm] ListingCreateVM vm)
+        {
             long size = vm.Images.Sum(f => f.Length);
             var city = await _context.Cities.SingleOrDefaultAsync(x => x.Name == vm.CityName);
-            var user = await _context.Users.SingleOrDefaultAsync(x => x.Id == vm.UserId); 
-            var listing = new Listing(vm, city, user);
+            var user = await _context.Users.SingleOrDefaultAsync(x => x.Id == vm.UserId);
+            var category = await _context.Categories.SingleOrDefaultAsync(x => x.CategoryName == vm.CategoryName);
+            var listing = new Listing(vm, city, user, category);
             await _context.AddAsync(listing);
 
             foreach (var image in vm.Images)
@@ -294,10 +296,12 @@ namespace Launchpad.Api.Controllers
                         await image.CopyToAsync(memoryStream);
                         var arrImg = memoryStream.ToArray();
                         var img = new ListingImage(arrImg, listing);
+                        //listing.ListingImages.Add(img);
                         await _context.AddAsync(img);
                     }
                 }
             }
+
             await _context.SaveChangesAsync();
             return Ok(new { count = vm.Images.Count, size });
         }
@@ -313,25 +317,47 @@ namespace Launchpad.Api.Controllers
 
         }
 
-        //[HttpPatch("Listings/{id}")]
-        //public async Task<ActionResult<string>> EditListing(Guid id, string title, string description, decimal? price, List<IFormFile> photos, bool status, string userId)
-        //{
-        //    var listing = await _context.Listings.SingleOrDefaultAsync(x => x.Id == id);
-        //    if (listing == null)
-        //        return BadRequest("Id not found");
+        [HttpPatch("Listings/{id}")]
+        public async Task<ActionResult<string>> EditListing([FromRoute] Guid id, [FromForm] string title, [FromForm] string description, [FromForm]  decimal? price, [FromForm] ListingImageCreateVM[] photos, [FromForm]  bool status, [FromForm]  string userId)
+        {
+            var listing = await _context.Listings.SingleOrDefaultAsync(x => x.Id == id);
+            if (listing == null)
+                return BadRequest("Id not found");
+            else if(listing.UserId != userId)
+            {
+                return BadRequest("User id does not match listing");
+            }
 
-        //    if (title != null)
-        //        listing.Title = title;
-        //    if (description != null)
-        //        listing.Description = description;
-        //    if (price != null)
-        //        listing.Price = (decimal)price;
-        //    //if (photos != null)
-        //    //    listing.ListingImages = null; 
 
-        //    //INCOMPLETE
+            if (title != null)
+                listing.Title = title;
+            if (description != null)
+                listing.Description = description;
+            if (price != null)
+                listing.Price = (decimal)price;
+            if (photos != null)
+            {
+                var all_listings_matching = await _context.ListingImages.Where(x => x.ListingId == listing.Id).ToListAsync();
+                _context.RemoveRange(all_listings_matching); //expect patch with all the images the user wants, so remove the old ones
+                foreach (var photo in photos)
+                {
+                    var img = new ListingImage(photo, listing);
+                    try
+                    {
+                            await _context.ListingImages.AddAsync(img);
+                            listing.ListingImages.Add(img);
+                    }
+                    catch (System.InvalidOperationException e)
+                    {
+                        Console.WriteLine(e.Message);
+                    }
+                }
+           }
 
-        //}
+            var result = await _context.SaveChangesAsync();
+
+            return Ok(result);
+        }
 
 
 
@@ -340,7 +366,7 @@ namespace Launchpad.Api.Controllers
         {
             if (filters == null)
             {
-                return await _context.FAQs.ToListAsync(); 
+                return await _context.FAQs.ToListAsync();               
             }
             else
             {

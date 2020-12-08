@@ -22,5 +22,6 @@ namespace Launchpad.Models.Entities
         }
         public Guid Id { get; set; }
         public string CategoryName { get; set; }
+        public ICollection<Listing> Listings {get; set;}
     }
 }

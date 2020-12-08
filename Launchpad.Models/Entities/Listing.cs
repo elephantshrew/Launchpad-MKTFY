@@ -21,8 +21,10 @@ namespace Launchpad.Models.Entities
         public ICollection<ListingImage> ListingImages { get; set; }
         public string UserId { get; set; }
 
+        public Category Category { get; set; }
+
         public Listing() { }
-        public Listing(ListingCreateVM vm, City city, User user)
+        public Listing(ListingCreateVM vm, City city, User user, Category category)
         {
             //UserId = vm.UserId;
             Title = vm.Title;
@@ -31,6 +33,7 @@ namespace Launchpad.Models.Entities
             Description = vm.Description;
             City = city;
             User = user;
+            Category = category;
         }
 
         public Listing(ListingCreateVM vm, City city, User user, ICollection<ListingImage> listingImages)

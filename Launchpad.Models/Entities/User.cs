@@ -18,7 +18,8 @@ namespace Launchpad.Models.Entities
         //public string Email { get; set; }
         public DateTime Tos { get; set; }
         public DateTime LastLogin { get; set; }
-        public string City { get; set; }
+        public string CityName { get; set; }
+        public City City { get; set; }
 
         public User() { }
 

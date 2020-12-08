@@ -63,7 +63,7 @@ namespace LaunchpadSept2020.App.Repositories
         { 
             var result = await _context.Users.SingleOrDefaultAsync(b => b.Id == id);
             result.PhoneNumber = vm.Phone;
-            result.City = vm.City;
+            result.CityName = vm.City;
             await _context.SaveChangesAsync();
             return new UserVM(result);
         }
