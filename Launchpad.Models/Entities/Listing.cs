@@ -20,8 +20,9 @@ namespace Launchpad.Models.Entities
         public DateTime Updated { get; set; }
         public ICollection<ListingImage> ListingImages { get; set; }
         public string UserId { get; set; }
-
         public Category Category { get; set; }
+        public Boolean DisplayInSearches { get; set; } = true;
+
 
         public Listing() { }
         public Listing(ListingCreateVM vm, City city, User user, Category category)

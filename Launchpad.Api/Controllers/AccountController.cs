@@ -359,7 +359,21 @@ namespace Launchpad.Api.Controllers
             return Ok(result);
         }
 
-
+        [HttpGet("Listings")]
+        public async Task<ActionResult<string>> ListingsByCategory([FromQuery] string keyword)
+        {
+            if (keyword == null)
+            {
+                var results = await _context.Listings.Include(x => x.Category).Where(x => x.DisplayInSearches == true).ToListAsync();
+                return Ok(results);
+            }
+            else
+            {
+                var results = await _context.Listings.Include(x => x.Category).Where(x => (x.Category.CategoryName.Contains(keyword) || x.Title.Contains(keyword) || x.Description.Contains(keyword)) && x.DisplayInSearches == true).ToListAsync();
+                return Ok(results);
+            }
+            
+        }
 
         [HttpGet("FAQ")]
         public async Task<ActionResult<List<FAQ>>> Faq([FromQuery] string filters)
@@ -373,5 +387,10 @@ namespace Launchpad.Api.Controllers
                 return await _context.FAQs.Where(p => p.Title.Contains(filters) || p.Text.Contains(filters)).ToListAsync();
             }
         }
+
+
+
+
+
     }
 }

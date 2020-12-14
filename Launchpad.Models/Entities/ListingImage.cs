@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Text.Json.Serialization;
 
 namespace Launchpad.Models.Entities
 {
@@ -40,6 +41,7 @@ namespace Launchpad.Models.Entities
         public Boolean IsMainPic { get; set; }
         public byte[] Image { get; set; }
 
+        [JsonIgnore]
         public Listing Listing { get; set; }
         public Guid ListingId { get; set; }
 
