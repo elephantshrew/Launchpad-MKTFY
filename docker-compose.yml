@@ -11,10 +11,13 @@ services:
         ports:
             - "25000:80"
             - "25001:443"
+        volumes:
+            - .aws:/root/.aws
         environment: 
-            - ConnectionStrings__DefaultConnection=Server=postgis-db;Database=devdb;User Id=devdbuser;password=devdbpassword
-            - Identity__Authority=http://postgis.auth
-            - SENDGRID_API_KEY=${SENDGRID_API_KEY}
+            - ASPNETCORE_ENVIRONMENT=Development
+            #- ConnectionStrings__DefaultConnection=Server=postgis-db;Database=devdb;User Id=devdbuser;password=devdbpassword
+            #- Identity__Authority=http://postgis.auth
+            #- SENDGRID_API_KEY=${SENDGRID_API_KEY}
         depends_on:
             - "postgis-db"
 
@@ -28,9 +31,12 @@ services:
         ports:
             - "27000:80"
             - "27001:443"
+        volumes:
+            - .aws:/root/.aws
         environment: 
-            - ConnectionStrings__DefaultConnection=Server=postgis-db;Database=devdb;User Id=devdbuser;password=devdbpassword
-            - Identity__Authority=http://postgis.auth
+            - ASPNETCORE_ENVIRONMENT=Development
+            #- ConnectionStrings__DefaultConnection=Server=postgis-db;Database=devdb;User Id=devdbuser;password=devdbpassword
+            #- Identity__Authority=http://postgis.auth
         depends_on:
             - "postgis-db"            
 
