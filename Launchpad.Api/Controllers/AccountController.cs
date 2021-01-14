@@ -375,6 +375,22 @@ namespace Launchpad.Api.Controllers
             
         }
 
+        [HttpGet("user/{id}/listings")]
+        public async Task<ActionResult<List<Listing>>> ListingByUserId ([FromRoute] string id)
+        {
+            var result =  await _context.Listings.Where(x => x.UserId == id).ToListAsync();
+            return result;
+        }
+
+        [HttpGet("user/{id}/activeListings")]
+        public async Task<ActionResult<int>> CountActiveListingByUserId([FromRoute] string id)
+        {
+            var result = await _context.Listings.Where(x => x.UserId == id && x.DisplayInSearches == true).ToListAsync();
+            return result.Count;
+        }
+
+
+
         [HttpGet("FAQ")]
         public async Task<ActionResult<List<FAQ>>> Faq([FromQuery] string filters)
         {
