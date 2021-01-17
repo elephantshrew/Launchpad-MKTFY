@@ -64,7 +64,7 @@ namespace Launchpad.Api
                 var env = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
                 if (env == "Development")
                 {
-                    builder.AddSystemsManager(String.Format("/Launchpad/{0}/", Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")), new AWSOptions
+                    builder.AddSystemsManager(String.Format("/Launchpad/{0}/", env), new AWSOptions
                     {
                         Region = RegionEndpoint.CACentral1,
                         Profile = "default"
@@ -72,7 +72,7 @@ namespace Launchpad.Api
                 }
                 if (env != "Development")
                 {
-                    builder.AddSystemsManager(String.Format("/Launchpad/{0}/", Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")), new AWSOptions
+                    builder.AddSystemsManager(String.Format("/Launchpad/{0}/", env), new AWSOptions
                     {
                         Region = RegionEndpoint.CACentral1
                     });
@@ -80,5 +80,5 @@ namespace Launchpad.Api
             });
     }
 }
-    
+
 

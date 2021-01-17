@@ -25,22 +25,23 @@ namespace Launchpad.Auth
                     webBuilder.UseStartup<Startup>();
                 })
              .ConfigureAppConfiguration((builder) =>
-            {
-            var env = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
-                if (env == "Development")
-                {
-                    builder.AddSystemsManager(String.Format("/Launchpad/{0}/", Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")), new AWSOptions
-                    {
-                        Region = RegionEndpoint.CACentral1,
-                        Profile = "default"
-                    });
-                }
-                if (env != "Development")
-                {
-                    builder.AddSystemsManager(String.Format("/Launchpad/{0}/", Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")), new AWSOptions
-                    {
-                        Region = RegionEndpoint.CACentral1
-                    }); }
-            });
+             {
+                 var env = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+                 if (env == "Development")
+                 {
+                     builder.AddSystemsManager(String.Format("/Launchpad/{0}/", Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")), new AWSOptions
+                     {
+                         Region = RegionEndpoint.CACentral1,
+                         Profile = "default"
+                     });
+                 }
+                 if (env != "Development")
+                 {
+                     builder.AddSystemsManager(String.Format("/Launchpad/{0}/", Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")), new AWSOptions
+                     {
+                         Region = RegionEndpoint.CACentral1
+                     });
+                 }
+             });
     }
 }
