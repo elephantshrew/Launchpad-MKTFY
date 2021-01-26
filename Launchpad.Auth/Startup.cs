@@ -39,28 +39,6 @@ namespace Launchpad.Auth
 
             services.AddIdentity<User, IdentityRole>()
             .AddEntityFrameworkStores<ApplicationDbContext>();
-            //.AddDefaultTokenProviders();
-
-            //var x = services.AddIdentityServer(option =>
-            //{
-            //    option.IssuerUri = Configuration.GetSection("Identity").GetValue<string>("Authority");
-            //})
-            //    .AddTestUsers(InMemoryConfig.GetUsers())
-            //    .AddInMemoryClients(InMemoryConfig.GetClients())
-            //    .AddConfigurationStore(opt =>
-            //    {
-            //        opt.ConfigureDbContext = c =>
-            //        c.UseNpgsql(Configuration.GetConnectionString("DefaultConnection"),
-            //        sql => sql.MigrationsAssembly("Launchpad.App"));
-            //    })
-                //.AddOperationalStore(opt =>
-                // {
-                //     opt.ConfigureDbContext = c =>
-                //     c.UseNpgsql(Configuration.GetConnectionString("DefaultConnection"),
-                //     sql => sql.MigrationsAssembly("Launchpad.App"));
-                // })
-            //    .AddDeveloperSigningCredential()
-            //    .AddAspNetIdentity<User>();
 
             services.AddIdentityServer(option =>
             {
@@ -93,16 +71,6 @@ namespace Launchpad.Auth
             }
 
             app.UseIdentityServer();
-
-        //    app.UseRouting();
-
-        //    app.UseEndpoints(endpoints =>
-        //    {
-        //        endpoints.MapGet("/", async context =>
-        //        {
-        //            await context.Response.WriteAsync("Hello World!");
-        //        });
-        //    });
         }
     }
 }

@@ -145,7 +145,7 @@ namespace Launchpad.Api.Controllers
                 var confirmation = await _userManager.GenerateEmailConfirmationTokenAsync(user);
 
                 //email token to user
-                var apiKey = Environment.GetEnvironmentVariable("SENDGRID_API_KEY");
+                var apiKey = _configuration.GetValue<string>("SENDGRID_API_KEY");
                 var client = new SendGridClient(apiKey);
                 var from = new EmailAddress("willcho128@gmail.com", "Example User");
                 var subject = "You are now registered!";

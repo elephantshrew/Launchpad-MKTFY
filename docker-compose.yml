@@ -15,9 +15,6 @@ services:
             - .aws:/root/.aws
         environment: 
             - ASPNETCORE_ENVIRONMENT=Development
-            #- ConnectionStrings__DefaultConnection=Server=postgis-db;Database=devdb;User Id=devdbuser;password=devdbpassword
-            #- Identity__Authority=http://postgis.auth
-            - SENDGRID_API_KEY=${SENDGRID_API_KEY}
         depends_on:
             - "postgis-db"
 
@@ -35,8 +32,6 @@ services:
             - .aws:/root/.aws
         environment: 
             - ASPNETCORE_ENVIRONMENT=Development
-            #- ConnectionStrings__DefaultConnection=Server=postgis-db;Database=devdb;User Id=devdbuser;password=devdbpassword
-            #- Identity__Authority=http://postgis.auth
         depends_on:
             - "postgis-db"            
 
@@ -51,12 +46,7 @@ services:
         volumes:
             - launchpad-db:/var/lib/postgresql/data
         ports:
-            - "26000:5432"
-
- 
-
-           
-
+            - "26000:5432"            
    
 volumes:
     launchpad-db:
