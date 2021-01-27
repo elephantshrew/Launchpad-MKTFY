@@ -37,22 +37,22 @@ namespace Launchpad.Api.Controllers
             var options = new AccountCreateOptions
             {
                 Type = "express",
-                Email = user.Email         
-            }; 
+                Email = user.Email
+            };
 
             var service = new AccountService();
-            var account = service.Create(options);
+            var account = await service.CreateAsync(options);
 
             var hostName = _configuration.GetValue<string>("Hostname");
             var linkOptions = new AccountLinkCreateOptions
             {
-                Account = account.Id,       
-                RefreshUrl = hostName + "/api/reauth", 
+                Account = account.Id,
+                RefreshUrl = hostName + "/api/reauth",
                 ReturnUrl = hostName + "/api/return",
                 Type = "account_onboarding",
             };
             var accountLinkService = new AccountLinkService();
-            var accountLink = accountLinkService.Create(linkOptions);
+            var accountLink = await accountLinkService.CreateAsync(linkOptions);
 
             return Ok(accountLink.Url);
         }
@@ -69,6 +69,43 @@ namespace Launchpad.Api.Controllers
             return Ok();
         }
 
+        [HttpPost("createcustomer")]
+        public IActionResult CreateCustomer()
+        {
+            StripeConfiguration.ApiKey = _configuration.GetValue<string>("StripeTestKey");
+
+            var options = new CustomerCreateOptions
+            {
+                Description = "My First Test Customer",
+            };
+            var service = new CustomerService();
+            var customer = service.Create(options);
+
+            return Ok(customer.Id);
+        }
+
+        [HttpPost("createpaymentmethod")]
+        public IActionResult CreatePaymentMethod([FromBody] StripePaymentMethodVM vm)
+        {
+            StripeConfiguration.ApiKey = _configuration.GetValue<string>("StripeTestKey");
+
+            var options = new PaymentMethodCreateOptions
+            {
+                Type = "card",
+                Card = new PaymentMethodCardOptions
+                {
+                    Number = vm.CardNumber,
+                    ExpMonth = vm.ExpMonth,
+                    ExpYear = vm.ExpYear,
+                    Cvc = vm.CVC,
+                },
+            };
+            var service = new PaymentMethodService();
+            var paymentMethod =service.Create(options);
+
+            return Ok(paymentMethod.Id);     
+        
+        }
 
     }
 }
