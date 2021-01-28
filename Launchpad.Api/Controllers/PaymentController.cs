@@ -85,7 +85,7 @@ namespace Launchpad.Api.Controllers
         }
 
         [HttpPost("createpaymentmethod")]
-        public IActionResult CreatePaymentMethod([FromBody] StripePaymentMethodVM vm)
+        public IActionResult CreatePaymentMethod([FromBody] StripeCreatePaymentMethodVM vm)
         {
             StripeConfiguration.ApiKey = _configuration.GetValue<string>("StripeTestKey");
 
@@ -135,11 +135,29 @@ namespace Launchpad.Api.Controllers
         }
 
         [HttpPost("removepaymentmethod")]
-        public IActionResult RemovePaymentMethod()
+        public IActionResult RemovePaymentMethod([FromBody] StripeRemovePaymentMethodVM vm)
         {
             //check if Customer has at least >1 card on file. If so, you can remove it
-            throw new NotImplementedException("TODO");
+            StripeConfiguration.ApiKey = _configuration.GetValue<string>("StripeTestKey");
 
+            var options = new PaymentMethodListOptions
+            {
+                Customer = vm.CustomerId,
+                Type = "card",
+            };
+            var paymentMethodService = new PaymentMethodService();
+            StripeList<PaymentMethod> paymentMethodList = paymentMethodService.List(
+              options
+            );
+
+            if (paymentMethodList.Count() <= 1)
+                return BadRequest("Must have at least 1 payment method on file");
+            else
+            {
+                var service = new PaymentMethodService();
+                paymentMethodService.Detach(vm.PaymentMethodId);
+                return Ok("Payment method " + vm.PaymentMethodId + " removed");
+            }
         }
     }
 }
