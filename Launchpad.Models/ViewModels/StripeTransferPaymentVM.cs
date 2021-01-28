@@ -5,23 +5,15 @@ using System.Text;
 
 namespace Launchpad.Models.ViewModels
 {
-
-    public class StripePaymentMethodVM    
+    public class StripeTransferPaymentVM
     {
         [Required]
         public string CustomerId { get; set; }
-
         [Required]
-        public string CardNumber { get; set; }
-
+        public string PaymentMethodId { get; set; }
         [Required]
-        public int ExpMonth { get; set; }
-
+        public long Amount { get; set; }
         [Required]
-        public int ExpYear { get; set; }
-
-        [Required]
-        public string CVC { get; set; }
-
+        public string ConnectedStripeAccountId { get; set; }
     }
 }

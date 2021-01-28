@@ -159,5 +159,36 @@ namespace Launchpad.Api.Controllers
                 return Ok("Payment method " + vm.PaymentMethodId + " removed");
             }
         }
+
+        /*
+         * On payment, price + $2.50 service charge is taken out of the buyer's account and price is credited to seller's account. $2.50 is credited to MKTFY account.
+         * */
+
+        [HttpPost("buy")]
+        public IActionResult TransferPayment(StripeTransferPaymentVM vm)
+        {
+            StripeConfiguration.ApiKey = _configuration.GetValue<string>("StripeTestKey");
+            var paymentIntentService = new PaymentIntentService();
+            var createOptions = new PaymentIntentCreateOptions
+            {
+                Customer = vm.CustomerId,
+                PaymentMethod =  vm.PaymentMethodId,
+                PaymentMethodTypes = new List<string>
+                {
+                "card",
+                },
+                Amount = vm.Amount + 250,
+                Currency = "cad",  
+                ApplicationFeeAmount = 250, 
+                TransferData = new PaymentIntentTransferDataOptions
+                {
+                    Destination = vm.ConnectedStripeAccountId
+                },
+            };
+
+            var paymentIntent = paymentIntentService.Create(createOptions);
+            paymentIntent = paymentIntentService.Confirm(paymentIntent.Id);
+            return Ok(paymentIntent.Status);
+        }
     }
 }
