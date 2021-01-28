@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using IdentityModel.Client; //IdentityModel is a .NET standard helper library for claims-based identity, OAuth 2.0 and OpenID Connect
 using Launchpad.App;
 using Launchpad.App.Repositories.Interfaces;
+using Launchpad.App.Utilities;
 using Launchpad.Models.Entities;
 using Launchpad.Models.ViewModels;
 using Microsoft.AspNetCore.Authorization;
@@ -19,6 +20,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using SendGrid;
 using SendGrid.Helpers.Mail;
+using Stripe;
 
 namespace Launchpad.Api.Controllers
 {
@@ -145,6 +147,7 @@ namespace Launchpad.Api.Controllers
                 var confirmation = await _userManager.GenerateEmailConfirmationTokenAsync(user);
 
                 //email token to user
+                // TODO var sendGridUtility = new SendGridUtility(_configuration.GetValue<string>("SENDGRID_API_KEY"));
                 var apiKey = _configuration.GetValue<string>("SENDGRID_API_KEY");
                 var client = new SendGridClient(apiKey);
                 var from = new EmailAddress("willcho128@gmail.com", "Example User");
@@ -155,10 +158,19 @@ namespace Launchpad.Api.Controllers
                 var msg =  MailHelper.CreateSingleEmail(from, to, subject, plainTextContent, htmlContent);
                 var response = await client.SendEmailAsync(msg);
 
+                StripeConfiguration.ApiKey = _configuration.GetValue<string>("StripeTestKey");
+
+                var options = new CustomerCreateOptions
+                {
+                    Description = "Test Customer " + vm.Email,
+                    Email = vm.Email,
+                    Name = vm.FirstName + " " + vm.LastName,
+                    Phone = vm.Phone
+                };
+                var service = new CustomerService();
+                var customer = service.Create(options);
+
                 return Ok(new UserRegisterResponseVM("200 ok, awesome!"));
-
-
-
             }
             else
                 return BadRequest("Register failed :(");

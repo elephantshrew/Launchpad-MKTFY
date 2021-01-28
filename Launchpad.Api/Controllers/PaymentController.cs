@@ -89,23 +89,57 @@ namespace Launchpad.Api.Controllers
         {
             StripeConfiguration.ApiKey = _configuration.GetValue<string>("StripeTestKey");
 
-            var options = new PaymentMethodCreateOptions
+            var options = new PaymentMethodListOptions
             {
+                Customer = vm.CustomerId, 
                 Type = "card",
-                Card = new PaymentMethodCardOptions
-                {
-                    Number = vm.CardNumber,
-                    ExpMonth = vm.ExpMonth,
-                    ExpYear = vm.ExpYear,
-                    Cvc = vm.CVC,
-                },
             };
-            var service = new PaymentMethodService();
-            var paymentMethod =service.Create(options);
+            var paymentMethodService = new PaymentMethodService();
+            StripeList<PaymentMethod> paymentMethodList = paymentMethodService.List(
+              options
+            );
 
-            return Ok(paymentMethod.Id);     
+            if (paymentMethodList.Count() >= 3)
+                return BadRequest("Please remove a payment method first - maximum of 3 payment methods");
+            else
+            {
+
+                var paymentMethodCreateOptions = new PaymentMethodCreateOptions
+                {
+                    Type = "card",
+                    Card = new PaymentMethodCardOptions
+                    {
+                        Number = vm.CardNumber,
+                        ExpMonth = vm.ExpMonth,
+                        ExpYear = vm.ExpYear,
+                        Cvc = vm.CVC,
+                    },
+                };
+                //var service = new PaymentMethodService();
+                var paymentMethod = paymentMethodService.Create(paymentMethodCreateOptions);
+
+
+                //Attach PaymentMethod to Customer with SetupIntent
+                var setupIntentCreateOptions = new SetupIntentCreateOptions
+                {
+                    PaymentMethod = paymentMethod.Id,
+                    Customer = vm.CustomerId
+                };
+                var setupIntentService = new SetupIntentService();
+                var setupIntent = setupIntentService.Create(setupIntentCreateOptions);
+                setupIntent = setupIntentService.Confirm(setupIntent.Id);
+
+                return Ok(paymentMethod.Id);
+            }
         
         }
 
+        [HttpPost("removepaymentmethod")]
+        public IActionResult RemovePaymentMethod()
+        {
+            //check if Customer has at least >1 card on file. If so, you can remove it
+            throw new NotImplementedException("TODO");
+
+        }
     }
 }

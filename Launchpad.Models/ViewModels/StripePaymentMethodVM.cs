@@ -6,8 +6,11 @@ using System.Text;
 namespace Launchpad.Models.ViewModels
 {
 
-    public class StripePaymentMethodVM
+    public class StripePaymentMethodVM    
     {
+        [Required]
+        public string CustomerId { get; set; }
+
         [Required]
         public string CardNumber { get; set; }
 
