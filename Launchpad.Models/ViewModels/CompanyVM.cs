@@ -1,6 +1,7 @@
 ﻿using Launchpad.Models.Entities;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Text;
 
 namespace Launchpad.Models.ViewModels 
@@ -15,8 +16,9 @@ namespace Launchpad.Models.ViewModels
             Name = src.Name;
 
         }
+        [Required]
         public Guid Id { get; set; }
-
+        [Required]
         public String Name { get; set; }
     }
 }
