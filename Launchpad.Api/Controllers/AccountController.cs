@@ -116,13 +116,10 @@ namespace Launchpad.Api.Controllers
             {
                 return BadRequest("Password and password confirmation do not match");
             }
-            else
-            {
-                var entity = await _context.Cities.SingleOrDefaultAsync(b => b.Name == vm.City);
-                if (entity == null)
-                    return BadRequest("Could not find city");
 
-            }
+                var city = await _context.Cities.SingleOrDefaultAsync(b => b.Name == vm.City);
+                if (city == null)
+                    return BadRequest("Could not find city");
 
             //var user = new User(vm);
             var user = new User
@@ -134,7 +131,9 @@ namespace Launchpad.Api.Controllers
                 NormalizedEmail = _normalizer.NormalizeEmail(vm.Email),
                 Tos = vm.Tos,
                 PhoneNumber = vm.Phone,
-                CityName = vm.City
+                CityName = vm.City,
+                CityId = city.Id
+
             };
             var result = await _userManager.CreateAsync(user, vm.Password);
             //result = await _userManager.AddPasswordAsync(user, vm.Password);

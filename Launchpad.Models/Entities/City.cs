@@ -11,8 +11,9 @@ namespace Launchpad.Models.Entities
         }
 
 
-        public City(string name, Province province)
+        public City(Guid id, string name, Province province)
         {
+            Id = id;
             Name = name;
             Province = province;
         }

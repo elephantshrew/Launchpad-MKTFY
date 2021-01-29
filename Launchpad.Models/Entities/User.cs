@@ -19,6 +19,7 @@ namespace Launchpad.Models.Entities
         public DateTime Tos { get; set; }
         public DateTime LastLogin { get; set; }
         public string CityName { get; set; }
+        public Guid CityId { get; set; }
         public City City { get; set; }
 
         public User() { }

@@ -31,7 +31,9 @@ namespace Launchpad.App.Seeds
                     UserName = "william@launchpadbyvog.com",
                     Email = "william@launchpadbyvog.com",
                     FirstName = "william",
-                    LastName = "Admin"
+                    LastName = "Admin",
+                    CityId = new Guid("2696b8f8-9090-4c35-b59c-9b7fa8e3ced8"),
+                    CityName = "Calgary"
                 };
 
                 IdentityResult result = await userManager.CreateAsync(user, "Password1");

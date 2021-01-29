@@ -33,7 +33,7 @@ namespace Launchpad.Api
                     var context = services.GetRequiredService<ApplicationDbContext>();
 
                     context.Database.Migrate();
-                    Task.Run(async () => await UserAndRoleSeeder.Seed(roleManager, userManager)).Wait();
+
 
                     var seeder = services.GetRequiredService<CategorySeeder>();
                     await seeder.Seed();
@@ -41,6 +41,7 @@ namespace Launchpad.Api
                     await citySeeder.Seed();
                     var faqSeeder = services.GetRequiredService<FAQSeeder>();
                     await faqSeeder.Seed();
+                    Task.Run(async () => await UserAndRoleSeeder.Seed(roleManager, userManager)).Wait();
                 }
                 catch (Exception ex)
                 {
