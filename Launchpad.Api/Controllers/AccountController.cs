@@ -25,6 +25,7 @@ using Stripe;
 namespace Launchpad.Api.Controllers
 {
     [Route("api")]
+    [Authorize(AuthenticationSchemes = "Bearer")]
     [ApiController]
     public class AccountController : ControllerBase
     {
@@ -50,6 +51,7 @@ namespace Launchpad.Api.Controllers
             _cityRepository = cityRepository;
         }
 
+        [AllowAnonymous]
         [HttpPost("login")]
 
         public async Task<ActionResult<LoginResponseVM>> Login([FromBody] LoginVM login)
@@ -103,9 +105,8 @@ namespace Launchpad.Api.Controllers
             }
 
         }
-        //ok what do I need
-        //need to take in registration fields from the request body, return response code and response body in json, asynchronously
 
+        [AllowAnonymous]
         [HttpPost("register")]
         public async Task<ActionResult<UserRegisterResponseVM>> Register([FromBody] UserRegisterVM vm)
         {
@@ -155,7 +156,7 @@ namespace Launchpad.Api.Controllers
                 var to = new EmailAddress(vm.Email, vm.FirstName);
                 var plainTextContent = "Confirmation: " + confirmation;
                 var htmlContent = "Confirmation: " + confirmation;
-                var msg =  MailHelper.CreateSingleEmail(from, to, subject, plainTextContent, htmlContent);
+                var msg = MailHelper.CreateSingleEmail(from, to, subject, plainTextContent, htmlContent);
                 var response = await client.SendEmailAsync(msg);
 
                 StripeConfiguration.ApiKey = _configuration.GetValue<string>("StripeTestKey");
@@ -176,6 +177,7 @@ namespace Launchpad.Api.Controllers
                 return BadRequest("Register failed :(");
         }
 
+        [AllowAnonymous]
         [HttpPatch("Verification")]
         public async Task<IActionResult> Verification([FromBody] VerifyVM vm)
         {
@@ -189,6 +191,7 @@ namespace Launchpad.Api.Controllers
                 return BadRequest("Email confirmation failed");
         }
 
+        [AllowAnonymous]
         [HttpPost("ForgotPassword")]
         public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordVM vm)
         {
@@ -214,6 +217,7 @@ namespace Launchpad.Api.Controllers
                    
         }
 
+        [AllowAnonymous]
         [HttpPost("Reset")]
         public async Task<IActionResult> Reset([FromBody] ResetPasswordVM vm)
         {
@@ -228,8 +232,6 @@ namespace Launchpad.Api.Controllers
 
         }
 
-        //[Authorize(Roles="user")]
-        [Authorize(AuthenticationSchemes = "Bearer")]
         [HttpGet("Category")]
         public async Task<ActionResult<List<CategoryVM>>> ListAllCategories()
         {
