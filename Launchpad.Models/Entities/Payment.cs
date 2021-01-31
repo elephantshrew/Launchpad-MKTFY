@@ -8,7 +8,6 @@ namespace Launchpad.Models.Entities
     {
         public Payment() { }
         public string Id { get; set; }
-        public string StripePaymentMethodId { get; set; }
         public string CustomerId { get; set; }
         
         public Customer Customer { get; set; }

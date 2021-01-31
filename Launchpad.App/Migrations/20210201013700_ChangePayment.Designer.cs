@@ -3,15 +3,17 @@ using System;
 using Launchpad.App;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace Launchpad.App.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20210201013700_ChangePayment")]
+    partial class ChangePayment
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -196,7 +198,8 @@ namespace Launchpad.App.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CustomerId");
+                    b.HasIndex("CustomerId")
+                        .IsUnique();
 
                     b.ToTable("Payments");
                 });
@@ -484,8 +487,8 @@ namespace Launchpad.App.Migrations
             modelBuilder.Entity("Launchpad.Models.Entities.Payment", b =>
                 {
                     b.HasOne("Launchpad.Models.Entities.Customer", "Customer")
-                        .WithMany("Payments")
-                        .HasForeignKey("CustomerId");
+                        .WithOne("Payment")
+                        .HasForeignKey("Launchpad.Models.Entities.Payment", "CustomerId");
                 });
 
             modelBuilder.Entity("Launchpad.Models.Entities.Province", b =>

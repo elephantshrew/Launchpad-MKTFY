@@ -25,7 +25,7 @@ namespace Launchpad.App.Migrations
                 nullable: true);
 
             migrationBuilder.CreateTable(
-                name: "Customer",
+                name: "Customers",
                 columns: table => new
                 {
                     Id = table.Column<string>(nullable: false),
@@ -33,9 +33,9 @@ namespace Launchpad.App.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Customer", x => x.Id);
+                    table.PrimaryKey("PK_Customers", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Customer_AspNetUsers_UserId",
+                        name: "FK_Customers_AspNetUsers_UserId",
                         column: x => x.UserId,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id",
@@ -43,7 +43,7 @@ namespace Launchpad.App.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Payment",
+                name: "Payments",
                 columns: table => new
                 {
                     Id = table.Column<string>(nullable: false),
@@ -52,24 +52,24 @@ namespace Launchpad.App.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Payment", x => x.Id);
+                    table.PrimaryKey("PK_Payments", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Payment_Customer_CustomerId",
+                        name: "FK_Payments_Customers_CustomerId",
                         column: x => x.CustomerId,
-                        principalTable: "Customer",
+                        principalTable: "Customers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_Customer_UserId",
-                table: "Customer",
+                name: "IX_Customers_UserId",
+                table: "Customers",
                 column: "UserId",
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_Payment_CustomerId",
-                table: "Payment",
+                name: "IX_Payments_CustomerId",
+                table: "Payments",
                 column: "CustomerId",
                 unique: true);
 
@@ -89,10 +89,10 @@ namespace Launchpad.App.Migrations
                 table: "AspNetUsers");
 
             migrationBuilder.DropTable(
-                name: "Payment");
+                name: "Payments");
 
             migrationBuilder.DropTable(
-                name: "Customer");
+                name: "Customers");
 
             migrationBuilder.DropColumn(
                 name: "StripeConnectedAccountId",

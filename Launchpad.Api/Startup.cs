@@ -102,7 +102,7 @@ namespace Launchpad.Api
             app.UseAuthentication();
             app.UseAuthorization();
 
-            UpdateDatabase(app);
+            //UpdateDatabase(app);
 
             app.UseEndpoints(endpoints =>
             {

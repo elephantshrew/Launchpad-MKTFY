@@ -11,13 +11,14 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Stripe;
 
+
 namespace Launchpad.Api.Controllers
 {
     [Route("api")]
     [ApiController]
     public class PaymentController : ControllerBase
     {
-
+        
         private readonly IConfiguration _configuration;
         private readonly ApplicationDbContext _context;
 
@@ -25,36 +26,43 @@ namespace Launchpad.Api.Controllers
         {
             _configuration = configuration;
             _context = context;
-
+            StripeConfiguration.ApiKey = _configuration.GetValue<string>("StripeTestKey");
         }
 
         [HttpPost("CreateConnectedAccount")]
         public async Task<ActionResult> Create([FromBody] StripeCreateAccountVM vm)
         {
-            StripeConfiguration.ApiKey = _configuration.GetValue<string>("StripeTestKey");
-            var user = await _context.Users.SingleOrDefaultAsync(x => x.Id == vm.UserId);
-
-            var options = new AccountCreateOptions
+            //StripeConfiguration.ApiKey = _configuration.GetValue<string>("StripeTestKey");
+            try
             {
-                Type = "express",
-                Email = user.Email
-            };
+                var user = await _context.Users.SingleOrDefaultAsync(x => x.Id == vm.UserId);
 
-            var service = new AccountService();
-            var account = await service.CreateAsync(options);
+                var options = new AccountCreateOptions
+                {
+                    Type = "express",
+                    Email = user.Email
+                };
 
-            var hostName = _configuration.GetValue<string>("Hostname");
-            var linkOptions = new AccountLinkCreateOptions
+                var service = new AccountService();
+                var account = await service.CreateAsync(options);
+
+                var hostName = _configuration.GetValue<string>("Hostname");
+                var linkOptions = new AccountLinkCreateOptions
+                {
+                    Account = account.Id,
+                    RefreshUrl = hostName + "/api/reauth",
+                    ReturnUrl = hostName + "/api/return",
+                    Type = "account_onboarding",
+                };
+                var accountLinkService = new AccountLinkService();
+                var accountLink = await accountLinkService.CreateAsync(linkOptions);
+
+                return Ok(accountLink.Url);
+            }
+            catch (StripeException e)
             {
-                Account = account.Id,
-                RefreshUrl = hostName + "/api/reauth",
-                ReturnUrl = hostName + "/api/return",
-                Type = "account_onboarding",
-            };
-            var accountLinkService = new AccountLinkService();
-            var accountLink = await accountLinkService.CreateAsync(linkOptions);
-
-            return Ok(accountLink.Url);
+                return StatusCode(500, (new { error = e.StripeError.Message }));
+            }
         }
 
         [HttpGet("return")]
@@ -70,94 +78,100 @@ namespace Launchpad.Api.Controllers
         }
 
         [HttpPost("createcustomer")]
-        public IActionResult CreateCustomer()
+        public async Task<IActionResult> CreateCustomer(CustomerCreateVM vm)
         {
-            StripeConfiguration.ApiKey = _configuration.GetValue<string>("StripeTestKey");
+            //StripeConfiguration.ApiKey = _configuration.GetValue<string>("StripeTestKey");
 
-            var options = new CustomerCreateOptions
+            var user = await _context.Users.SingleOrDefaultAsync(x => x.Id == vm.UserId);
+
+            try
             {
-                Description = "My First Test Customer",
-            };
-            var service = new CustomerService();
-            var customer = service.Create(options);
+                var options = new CustomerCreateOptions
+                {
+                    Email = user.Email,
+                };
+                var service = new CustomerService();
+                var customer = service.Create(options);
+                var customerForContext = new Models.Entities.Customer { Id = customer.Id, UserId = vm.UserId };
+                var result = await _context.Customers.AddAsync(customerForContext);
+                await _context.SaveChangesAsync();
 
-            return Ok(customer.Id);
+                return Ok(customer.Id);
+            }
+            catch (StripeException e)
+            {
+                return StatusCode(500, (new { error = e.StripeError.Message }));
+            }
         }
 
-        [HttpPost("createpaymentmethod")]
-        public IActionResult CreatePaymentMethod([FromBody] StripeCreatePaymentMethodVM vm)
+        [HttpPost("addpaymentmethod")]
+        public async Task<IActionResult> CreatePaymentMethod([FromBody] StripeAddPaymentMethodVM vm)
         {
-            StripeConfiguration.ApiKey = _configuration.GetValue<string>("StripeTestKey");
-
-            var options = new PaymentMethodListOptions
+            //StripeConfiguration.ApiKey = _configuration.GetValue<string>("StripeTestKey");
+            try
             {
-                Customer = vm.CustomerId, 
-                Type = "card",
-            };
-            var paymentMethodService = new PaymentMethodService();
-            StripeList<PaymentMethod> paymentMethodList = paymentMethodService.List(
-              options
-            );
+                var customer = await _context.Customers.SingleOrDefaultAsync(b => b.UserId == vm.UserId);
+                var paymentMethodList = await _context.Payments.Where(b => b.CustomerId == customer.Id).ToListAsync();
 
-            if (paymentMethodList.Count() >= 3)
-                return BadRequest("Please remove a payment method first - maximum of 3 payment methods");
-            else
-            {
-
-                var paymentMethodCreateOptions = new PaymentMethodCreateOptions
+                if (paymentMethodList.Count() >= 3)
+                    return BadRequest("Please remove a payment method first - maximum of 3 payment methods");
+                else
                 {
-                    Type = "card",
-                    Card = new PaymentMethodCardOptions
+                    //Attach PaymentMethod to Customer with SetupIntent
+                    var setupIntentCreateOptions = new SetupIntentCreateOptions
                     {
-                        Number = vm.CardNumber,
-                        ExpMonth = vm.ExpMonth,
-                        ExpYear = vm.ExpYear,
-                        Cvc = vm.CVC,
-                    },
-                };
-                //var service = new PaymentMethodService();
-                var paymentMethod = paymentMethodService.Create(paymentMethodCreateOptions);
-
-
-                //Attach PaymentMethod to Customer with SetupIntent
-                var setupIntentCreateOptions = new SetupIntentCreateOptions
-                {
-                    PaymentMethod = paymentMethod.Id,
-                    Customer = vm.CustomerId
-                };
-                var setupIntentService = new SetupIntentService();
-                var setupIntent = setupIntentService.Create(setupIntentCreateOptions);
-                setupIntent = setupIntentService.Confirm(setupIntent.Id);
-
-                return Ok(paymentMethod.Id);
+                        PaymentMethod = vm.PaymentMethodId,
+                        Customer = customer.Id
+                    };
+                    var setupIntentService = new SetupIntentService();
+                    var setupIntent = setupIntentService.Create(setupIntentCreateOptions);
+                    setupIntent = setupIntentService.Confirm(setupIntent.Id);
+                    if (setupIntent.Status == "succeeded")
+                    {
+                        var payment = new Payment {CustomerId = customer.Id, Id = setupIntent.PaymentMethodId};
+                        await _context.Payments.AddAsync(payment);
+                        await _context.SaveChangesAsync();
+                        return Ok(setupIntent.Status);
+                        
+                    }
+                    else
+                        return StatusCode(500, setupIntent.Status);
+                }
             }
-        
+            catch (StripeException e)
+            {
+                return StatusCode(500, (new { error = e.StripeError.Message }));
+            }
         }
 
         [HttpPost("removepaymentmethod")]
-        public IActionResult RemovePaymentMethod([FromBody] StripeRemovePaymentMethodVM vm)
+        public async Task<IActionResult> RemovePaymentMethod([FromBody] StripeRemovePaymentMethodVM vm)
         {
             //check if Customer has at least >1 card on file. If so, you can remove it
-            StripeConfiguration.ApiKey = _configuration.GetValue<string>("StripeTestKey");
+            //StripeConfiguration.ApiKey = _configuration.GetValue<string>("StripeTestKey");
 
-            var options = new PaymentMethodListOptions
+            try
             {
-                Customer = vm.CustomerId,
-                Type = "card",
-            };
-            var paymentMethodService = new PaymentMethodService();
-            StripeList<PaymentMethod> paymentMethodList = paymentMethodService.List(
-              options
-            );
+                var customer = await _context.Customers.SingleOrDefaultAsync(b => b.UserId == vm.UserId);
+                var paymentMethodList = await _context.Payments.Where(b => b.CustomerId == customer.Id).ToListAsync();
 
-            if (paymentMethodList.Count() <= 1)
-                return BadRequest("Must have at least 1 payment method on file");
-            else
-            {
-                var service = new PaymentMethodService();
-                paymentMethodService.Detach(vm.PaymentMethodId);
-                return Ok("Payment method " + vm.PaymentMethodId + " removed");
+                if (paymentMethodList.Count() <= 1)
+                    return BadRequest("Must have at least 1 payment method on file");
+                else
+                {
+                    var paymentMethodService = new PaymentMethodService();
+                    paymentMethodService.Detach(vm.PaymentMethodId);
+                    var paymentMethod = await _context.Payments.SingleOrDefaultAsync(b => b.Id == vm.PaymentMethodId);
+                    _context.Payments.Remove(paymentMethod);
+                    var result = await _context.SaveChangesAsync();
+                    return Ok("Payment method " + vm.PaymentMethodId + " removed");
+                }
             }
+            catch (StripeException e)
+            {
+                return StatusCode(500, (new { error = e.StripeError.Message }));
+            }
+
         }
 
         /*
@@ -167,28 +181,50 @@ namespace Launchpad.Api.Controllers
         [HttpPost("buy")]
         public IActionResult TransferPayment(StripeTransferPaymentVM vm)
         {
-            StripeConfiguration.ApiKey = _configuration.GetValue<string>("StripeTestKey");
-            var paymentIntentService = new PaymentIntentService();
-            var createOptions = new PaymentIntentCreateOptions
+            //StripeConfiguration.ApiKey = _configuration.GetValue<string>("StripeTestKey");
+            try
             {
-                Customer = vm.CustomerId,
-                PaymentMethod =  vm.PaymentMethodId,
-                PaymentMethodTypes = new List<string>
+                var paymentIntentService = new PaymentIntentService();
+                var createOptions = new PaymentIntentCreateOptions
+                {
+                    Customer = vm.CustomerId,
+                    PaymentMethod = vm.PaymentMethodId,
+                    PaymentMethodTypes = new List<string>
                 {
                 "card",
                 },
-                Amount = vm.Amount + 250,
-                Currency = "cad",  
-                ApplicationFeeAmount = 250, 
-                TransferData = new PaymentIntentTransferDataOptions
-                {
-                    Destination = vm.ConnectedStripeAccountId
-                },
-            };
+                    Amount = vm.Amount + 250,
+                    Currency = "cad",
+                    ApplicationFeeAmount = 250,
+                    TransferData = new PaymentIntentTransferDataOptions
+                    {
+                        Destination = vm.ConnectedStripeAccountId
+                    },
+                };
 
-            var paymentIntent = paymentIntentService.Create(createOptions);
-            paymentIntent = paymentIntentService.Confirm(paymentIntent.Id);
-            return Ok(paymentIntent.Status);
+                var paymentIntent = paymentIntentService.Create(createOptions);
+                paymentIntent = paymentIntentService.Confirm(paymentIntent.Id);
+                return GeneratePaymentResponse(paymentIntent);
+            }
+            catch (StripeException e)
+            {
+                return StatusCode(500, (new { error = e.StripeError.Message }));
+            }
         }
+
+        private IActionResult GeneratePaymentResponse(PaymentIntent intent)
+        {
+            if (intent.Status == "succeeded")
+            {
+                // Handle post-payment fulfillment
+                return Ok("Succeeded");
+            }
+            else
+            {
+                // Any other status would be unexpected, so error
+                return StatusCode(500, new { error = "Invalid PaymentIntent status" });
+            }
+        }
+
     }
 }

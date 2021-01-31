@@ -5,11 +5,14 @@ using System.Text;
 
 namespace Launchpad.Models.ViewModels
 {
-    public class StripeRemovePaymentMethodVM
+
+    public class StripeAddPaymentMethodVM    
     {
         [Required]
         public string UserId { get; set; }
+
         [Required]
         public string PaymentMethodId { get; set; }
+
     }
 }

@@ -7,12 +7,12 @@ namespace Launchpad.App.Utilities
 {
     public class StripeUtility
     {
-        public void CreatePaymentMethod(StripeCreatePaymentMethodVM vm)
+        public void CreatePaymentMethod(StripeAddPaymentMethodVM vm)
         {
             throw new NotImplementedException("TODO");
         }
 
-        public void CreateCustomer(StripeCreatePaymentMethodVM vm)
+        public void CreateCustomer(StripeAddPaymentMethodVM vm)
         {
             throw new NotImplementedException("TODO");
         }

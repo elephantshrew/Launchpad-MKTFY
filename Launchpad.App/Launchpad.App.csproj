@@ -31,6 +31,8 @@
     <Compile Remove="Migrations\20210129232606_NormalizeUser.Designer.cs" />
     <Compile Remove="Migrations\20210131081347_StripeMigration.cs" />
     <Compile Remove="Migrations\20210131081347_StripeMigration.Designer.cs" />
+    <Compile Remove="Migrations\20210131081549_StripeMigration.cs" />
+    <Compile Remove="Migrations\20210131081549_StripeMigration.Designer.cs" />
   </ItemGroup>
 
   <ItemGroup>

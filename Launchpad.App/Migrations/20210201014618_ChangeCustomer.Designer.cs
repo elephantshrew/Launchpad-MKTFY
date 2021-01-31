@@ -10,8 +10,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Launchpad.App.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20210131081549_StripeMigration")]
-    partial class StripeMigration
+    [Migration("20210201014618_ChangeCustomer")]
+    partial class ChangeCustomer
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -96,7 +96,7 @@ namespace Launchpad.App.Migrations
                     b.HasIndex("UserId")
                         .IsUnique();
 
-                    b.ToTable("Customer");
+                    b.ToTable("Customers");
                 });
 
             modelBuilder.Entity("Launchpad.Models.Entities.FAQ", b =>
@@ -196,15 +196,11 @@ namespace Launchpad.App.Migrations
                     b.Property<string>("CustomerId")
                         .HasColumnType("text");
 
-                    b.Property<string>("StripePaymentMethodId")
-                        .HasColumnType("text");
-
                     b.HasKey("Id");
 
-                    b.HasIndex("CustomerId")
-                        .IsUnique();
+                    b.HasIndex("CustomerId");
 
-                    b.ToTable("Payment");
+                    b.ToTable("Payments");
                 });
 
             modelBuilder.Entity("Launchpad.Models.Entities.Province", b =>
@@ -490,8 +486,8 @@ namespace Launchpad.App.Migrations
             modelBuilder.Entity("Launchpad.Models.Entities.Payment", b =>
                 {
                     b.HasOne("Launchpad.Models.Entities.Customer", "Customer")
-                        .WithOne("Payment")
-                        .HasForeignKey("Launchpad.Models.Entities.Payment", "CustomerId");
+                        .WithMany("Payments")
+                        .HasForeignKey("CustomerId");
                 });
 
             modelBuilder.Entity("Launchpad.Models.Entities.Province", b =>
