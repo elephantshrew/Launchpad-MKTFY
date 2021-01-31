@@ -13,18 +13,16 @@ namespace Launchpad.Models.Entities
         public string FirstName { get; set; }
         [Required]
         public string LastName { get; set; }
-        //[Required]
-        //[EmailAddress]
-        //public string Email { get; set; }
         public DateTime Tos { get; set; }
         public DateTime LastLogin { get; set; }
         public string CityName { get; set; }
+
         public Guid CityId { get; set; }
+        public string StripeConnectedAccountId { get; set; }
         public City City { get; set; }
+        public Customer Customer { get; set; }
 
         public User() { }
-
-        
         public User(UserRegisterVM src)
         {
             FirstName = src.FirstName;

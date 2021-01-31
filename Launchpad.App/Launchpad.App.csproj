@@ -23,6 +23,14 @@
     <Compile Remove="Migrations\20201125162112_AddListingsAndImages.Designer.cs" />
     <Compile Remove="Migrations\20201125162221_AddListingsAndImages.cs" />
     <Compile Remove="Migrations\20201125162221_AddListingsAndImages.Designer.cs" />
+    <Compile Remove="Migrations\20210129231439_NormalizeUser.cs" />
+    <Compile Remove="Migrations\20210129231439_NormalizeUser.Designer.cs" />
+    <Compile Remove="Migrations\20210129232516_NormalizeUser.cs" />
+    <Compile Remove="Migrations\20210129232516_NormalizeUser.Designer.cs" />
+    <Compile Remove="Migrations\20210129232606_NormalizeUser.cs" />
+    <Compile Remove="Migrations\20210129232606_NormalizeUser.Designer.cs" />
+    <Compile Remove="Migrations\20210131081347_StripeMigration.cs" />
+    <Compile Remove="Migrations\20210131081347_StripeMigration.Designer.cs" />
   </ItemGroup>
 
   <ItemGroup>

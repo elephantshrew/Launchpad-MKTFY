@@ -39,6 +39,9 @@ namespace Launchpad.App
         public DbSet<Listing> Listings { get; set; }
         public DbSet<ListingImage> ListingImages { get; set; }
         public DbSet<FAQ> FAQs { get; set; }
+        public DbSet<Payment> Payments { get; set; }
+        public DbSet<Customer> Customers {get; set;}
+
 
        
     }
