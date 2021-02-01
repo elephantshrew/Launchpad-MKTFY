@@ -436,7 +436,35 @@ namespace Launchpad.Api.Controllers
             return result.Count;
         }
 
+        [HttpGet("user/{id}/purchases")]
+        public async Task<IActionResult> ShowPurchases([FromRoute] string id)
+        {
 
+            var query = from t in _context.Transactions
+                        join l in _context.Listings on t.Id equals l.Id
+                        where t.BuyerId == id
+                        join u in _context.Users on l.UserId equals u.Id
+                        select new { name = l.Title, description = l.Description, datebought = t.Finished, seller = u.Email, price = l.Price };
+            var result = await query.ToListAsync();
+            if (result == null)
+                return BadRequest();
+            else
+                return Ok(result);
+        }
+
+        [HttpGet("user/{id}/purchases/{orderid}")]
+        public async Task<IActionResult> ShowSpecificPurchase([FromRoute] string id, [FromRoute] Guid orderId)
+        {
+            var transaction =  await _context.Transactions.SingleOrDefaultAsync(b => b.BuyerId == id && b.Id == orderId);
+            if (transaction == null)
+                return BadRequest();
+            else
+            {
+                var listing = await _context.Listings.SingleOrDefaultAsync(b => b.Id == transaction.Id);
+                var user = await _context.Users.SingleOrDefaultAsync(b => b.Id == listing.UserId);
+                return Ok(new { name = listing.Title, description = listing.Description, datebought = transaction.Finished, seller = user.Email, price = listing.Price});
+            }
+        }
 
         [HttpGet("FAQ")]
         public async Task<ActionResult<List<FAQ>>> Faq([FromQuery] string filters)
