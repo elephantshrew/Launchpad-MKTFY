@@ -6,6 +6,7 @@ using Launchpad.App;
 using Launchpad.App.Repositories;
 using Launchpad.App.Repositories.Interfaces;
 using Launchpad.App.Seeds;
+using Launchpad.App.Utilities;
 using Launchpad.Models.Entities;
 using LaunchpadSept2020.App.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -84,6 +85,7 @@ namespace Launchpad.Api
             services.AddScoped<CategorySeeder>();
             services.AddScoped<CitySeeder>();
             services.AddScoped<FAQSeeder>();
+            services.AddScoped<StripeUtility>();
 
         }
 

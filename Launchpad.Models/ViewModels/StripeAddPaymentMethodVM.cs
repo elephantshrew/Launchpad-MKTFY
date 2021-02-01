@@ -13,6 +13,8 @@ namespace Launchpad.Models.ViewModels
 
         [Required]
         public string PaymentMethodId { get; set; }
+        [Required]
+        public bool SetAsDefault { get; set; }
 
     }
 }

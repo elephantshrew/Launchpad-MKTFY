@@ -49,6 +49,7 @@ namespace Launchpad.Api.Controllers
             _context = context;
             _categoryRepository = categoryRepository;
             _cityRepository = cityRepository;
+            StripeConfiguration.ApiKey = _configuration.GetValue<string>("StripeTestKey");
         }
 
         [AllowAnonymous]
@@ -124,6 +125,7 @@ namespace Launchpad.Api.Controllers
             //var user = new User(vm);
             var user = new User
             {
+                Id = Guid.NewGuid().ToString(),
                 UserName = vm.Email,
                 Email = vm.Email,
                 FirstName = vm.FirstName,
@@ -158,9 +160,10 @@ namespace Launchpad.Api.Controllers
                 var msg = MailHelper.CreateSingleEmail(from, to, subject, plainTextContent, htmlContent);
                 var response = await client.SendEmailAsync(msg);
 
-                StripeConfiguration.ApiKey = _configuration.GetValue<string>("StripeTestKey");
 
-                var options = new CustomerCreateOptions
+                try
+                {
+                    var options = new CustomerCreateOptions
                 {
                     Description = "Test Customer " + vm.Email,
                     Email = vm.Email,
@@ -169,8 +172,39 @@ namespace Launchpad.Api.Controllers
                 };
                 var service = new CustomerService();
                 var customer = service.Create(options);
+                var customerForContext = new Models.Entities.Customer { Id = customer.Id, UserId = user.Id};
+                var customerResult = await _context.Customers.AddAsync(customerForContext);
+                //await _context.SaveChangesAsync();
 
-                return Ok(new UserRegisterResponseVM("200 ok, awesome!"));
+                //register for stripe connected account              
+                    var accountOptions = new AccountCreateOptions
+                    {
+                        Type = "express",
+                        Email = user.Email
+                    };
+
+                    var accountService = new AccountService();
+                    var account = await accountService.CreateAsync(accountOptions);
+                    user.StripeConnectedAccountId = account.Id;
+                    await _context.SaveChangesAsync();
+
+                    var hostName = _configuration.GetValue<string>("Hostname");
+                    var linkOptions = new AccountLinkCreateOptions
+                    {
+                        Account = account.Id,
+                        RefreshUrl = hostName + "/api/reauth",
+                        ReturnUrl = hostName + "/api/return",
+                        Type = "account_onboarding",
+                    };
+                    var accountLinkService = new AccountLinkService();
+                    var accountLink = await accountLinkService.CreateAsync(linkOptions);
+
+                    return Ok(accountLink.Url);
+                }
+                catch (StripeException e)
+                {
+                    return StatusCode(500, (new { error = e.StripeError.Message }));
+                }
             }
             else
                 return BadRequest("Register failed :(");
