@@ -171,7 +171,7 @@ namespace Launchpad.Api.Controllers
                     Phone = vm.Phone
                 };
                 var service = new CustomerService();
-                var customer = service.Create(options);
+                var customer = await service.CreateAsync(options);
                 var customerForContext = new Models.Entities.Customer { Id = customer.Id, UserId = user.Id};
                 var customerResult = await _context.Customers.AddAsync(customerForContext);
                 //await _context.SaveChangesAsync();

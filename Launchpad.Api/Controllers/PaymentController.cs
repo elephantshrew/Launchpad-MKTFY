@@ -32,7 +32,6 @@ namespace Launchpad.Api.Controllers
         [HttpPost("CreateConnectedAccount")]
         public async Task<ActionResult> Create([FromBody] StripeCreateAccountVM vm)
         {
-            //StripeConfiguration.ApiKey = _configuration.GetValue<string>("StripeTestKey");
             try
             {
                 var user = await _context.Users.SingleOrDefaultAsync(x => x.Id == vm.UserId);
@@ -79,9 +78,7 @@ namespace Launchpad.Api.Controllers
 
         [HttpPost("createcustomer")]
         public async Task<IActionResult> CreateCustomer(CustomerCreateVM vm)
-        {
-            //StripeConfiguration.ApiKey = _configuration.GetValue<string>("StripeTestKey");
-
+        { 
             var user = await _context.Users.SingleOrDefaultAsync(x => x.Id == vm.UserId);
 
             try
@@ -91,7 +88,7 @@ namespace Launchpad.Api.Controllers
                     Email = user.Email,
                 };
                 var service = new CustomerService();
-                var customer = service.Create(options);
+                var customer = await service.CreateAsync(options);
                 var customerForContext = new Models.Entities.Customer { Id = customer.Id, UserId = vm.UserId };
                 var result = await _context.Customers.AddAsync(customerForContext);
                 await _context.SaveChangesAsync();
@@ -107,7 +104,6 @@ namespace Launchpad.Api.Controllers
         [HttpPost("addpaymentmethod")]
         public async Task<IActionResult> CreatePaymentMethod([FromBody] StripeAddPaymentMethodVM vm)
         {
-            //StripeConfiguration.ApiKey = _configuration.GetValue<string>("StripeTestKey");
             try
             {
                 var customer = await _context.Customers.SingleOrDefaultAsync(b => b.UserId == vm.UserId); //TODO: check if customer null
@@ -126,8 +122,8 @@ namespace Launchpad.Api.Controllers
                         Customer = customer.Id
                     };
                     var setupIntentService = new SetupIntentService();
-                    var setupIntent = setupIntentService.Create(setupIntentCreateOptions);
-                    setupIntent = setupIntentService.Confirm(setupIntent.Id);
+                    var setupIntent = await setupIntentService.CreateAsync(setupIntentCreateOptions);
+                    setupIntent = await setupIntentService.ConfirmAsync(setupIntent.Id);
                     if (setupIntent.Status == "succeeded")
                     {
                         if(vm.SetAsDefault == true || paymentMethodList.Count == 0)
@@ -140,7 +136,7 @@ namespace Launchpad.Api.Controllers
                                 }
                             };
                             var customerService = new CustomerService();
-                            var result = customerService.Update(customer.Id, options);
+                            var result = await customerService.UpdateAsync(customer.Id, options);
                         }
 
                         var payment = new Payment {CustomerId = customer.Id, Id = setupIntent.PaymentMethodId};
@@ -163,8 +159,6 @@ namespace Launchpad.Api.Controllers
         public async Task<IActionResult> RemovePaymentMethod([FromBody] StripeRemovePaymentMethodVM vm)
         {
             //check if Customer has at least >1 card on file. If so, you can remove it
-            //StripeConfiguration.ApiKey = _configuration.GetValue<string>("StripeTestKey");
-
             try
             {
                 var customer = await _context.Customers.SingleOrDefaultAsync(b => b.UserId == vm.UserId);
@@ -175,7 +169,7 @@ namespace Launchpad.Api.Controllers
                 else
                 {
                     var paymentMethodService = new PaymentMethodService();
-                    paymentMethodService.Detach(vm.PaymentMethodId);
+                    await paymentMethodService.DetachAsync(vm.PaymentMethodId);
                     var paymentMethod = await _context.Payments.SingleOrDefaultAsync(b => b.Id == vm.PaymentMethodId);
                     _context.Payments.Remove(paymentMethod);
                     var result = await _context.SaveChangesAsync();
@@ -211,19 +205,15 @@ namespace Launchpad.Api.Controllers
             var buyerCustomer = await _context.Customers.SingleOrDefaultAsync(b => b.UserId == buyer.Id);
             if (buyerCustomer == null)
                 return BadRequest("Customer not found");
-            //var paymentMethodId = _context.Payments.FirstOrDefault(b => b.CustomerId == buyerCustomer.Id);
-            //if (paymentMethodId == null)
-            //{
-            //    return BadRequest();
-            //}
+
             var service = new CustomerService();
-            var buyerCustomerFromService = service.Get(buyerCustomer.Id);
+            var buyerCustomerFromService = await service.GetAsync(buyerCustomer.Id);
             var paymentMethodId = buyerCustomerFromService.InvoiceSettings.DefaultPaymentMethodId;
             if (paymentMethodId == null)
             {
                return BadRequest("Payment method not found");
             }
-            //return TransferPayment(new StripeTransferPaymentVM { Amount = (long)amount, ConnectedStripeAccountId = connectedStripeAccountId, CustomerId = buyerCustomer.Id, PaymentMethodId = paymentMethodId });
+           
             try
             {
                 var paymentIntentService = new PaymentIntentService();
@@ -244,8 +234,8 @@ namespace Launchpad.Api.Controllers
                     },
                 };
 
-                var paymentIntent = paymentIntentService.Create(createOptions);
-                paymentIntent = paymentIntentService.Confirm(paymentIntent.Id);
+                var paymentIntent = await paymentIntentService.CreateAsync(createOptions);
+                paymentIntent = await paymentIntentService.ConfirmAsync(paymentIntent.Id);
                 var transaction = new Transaction { Id = vm.ListingId, BuyerId = vm.UserId, Created = DateTime.Now };
                 if(paymentIntent.Status == "succeeded")
                 {
@@ -261,9 +251,8 @@ namespace Launchpad.Api.Controllers
             }
         }
 
-        private IActionResult TransferPayment(StripeTransferPaymentVM vm)
+        private async Task<IActionResult> TransferPayment(StripeTransferPaymentVM vm)
         {
-            //StripeConfiguration.ApiKey = _configuration.GetValue<string>("StripeTestKey");
             try
             {
                 var paymentIntentService = new PaymentIntentService();
@@ -284,8 +273,8 @@ namespace Launchpad.Api.Controllers
                     },
                 };
 
-                var paymentIntent = paymentIntentService.Create(createOptions);
-                paymentIntent = paymentIntentService.Confirm(paymentIntent.Id);
+                var paymentIntent = await paymentIntentService.CreateAsync(createOptions);
+                paymentIntent = await paymentIntentService.ConfirmAsync(paymentIntent.Id);
                 return GeneratePaymentResponse(paymentIntent);
             }
             catch (StripeException e)
