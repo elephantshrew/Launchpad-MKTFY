@@ -479,6 +479,12 @@ namespace Launchpad.Api.Controllers
             }
         }
 
+        [HttpGet("contact/chat")]
+        public IActionResult Contact()
+        {
+            return Ok(_configuration.GetValue<string>("Contact"));
+        }
+
 
 
 
