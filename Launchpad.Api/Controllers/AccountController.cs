@@ -192,8 +192,8 @@ namespace Launchpad.Api.Controllers
                     var linkOptions = new AccountLinkCreateOptions
                     {
                         Account = account.Id,
-                        RefreshUrl = hostName + "/api/reauth",
-                        ReturnUrl = hostName + "/api/return",
+                        RefreshUrl = hostName + "/api/reauth/" + user.Id,
+                        ReturnUrl = hostName + "/api/return/" + user.Id,
                         Type = "account_onboarding",
                     };
                     var accountLinkService = new AccountLinkService();
@@ -327,9 +327,31 @@ namespace Launchpad.Api.Controllers
         [HttpPost("Listings")]
         public async Task<ActionResult<Listing>> CreateListing([FromForm] ListingCreateVM vm)
         {
+            var user = await _context.Users.SingleOrDefaultAsync(b => b.Id == vm.UserId);
+            if (user == null)
+                return BadRequest();
+            var service = new AccountService();
+            var account = await service.GetAsync(user.StripeConnectedAccountId);
+
+            if (account.ChargesEnabled == false || account.PayoutsEnabled == false)
+            {
+                //redirect to onboarding flow
+                var hostName = _configuration.GetValue<string>("Hostname");
+                var options = new AccountLinkCreateOptions
+                {
+                    Account = account.Id,
+                    RefreshUrl = hostName + "/api/reauth/" + vm.UserId, 
+                    ReturnUrl = hostName + "/api/return/" + vm.UserId,
+                    Type = "account_onboarding",
+                };
+                var accountLinkservice = new AccountLinkService();
+                var accountLink = await accountLinkservice.CreateAsync(options);
+                return Ok(accountLink.Url);
+            }
+
             long size = vm.Images.Sum(f => f.Length);
             var city = await _context.Cities.SingleOrDefaultAsync(x => x.Name == vm.CityName);
-            var user = await _context.Users.SingleOrDefaultAsync(x => x.Id == vm.UserId);
+            //var user = await _context.Users.SingleOrDefaultAsync(x => x.Id == vm.UserId);
             var category = await _context.Categories.SingleOrDefaultAsync(x => x.CategoryName == vm.CategoryName);
             var listing = new Listing(vm, city, user, category);
             await _context.AddAsync(listing);

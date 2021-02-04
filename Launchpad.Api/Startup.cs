@@ -85,7 +85,7 @@ namespace Launchpad.Api
             services.AddScoped<CategorySeeder>();
             services.AddScoped<CitySeeder>();
             services.AddScoped<FAQSeeder>();
-            services.AddScoped<StripeUtility>();
+
 
         }
 

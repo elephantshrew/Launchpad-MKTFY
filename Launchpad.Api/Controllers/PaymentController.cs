@@ -49,8 +49,8 @@ namespace Launchpad.Api.Controllers
                 var linkOptions = new AccountLinkCreateOptions
                 {
                     Account = account.Id,
-                    RefreshUrl = hostName + "/api/reauth",
-                    ReturnUrl = hostName + "/api/return",
+                    RefreshUrl = hostName + "/api/reauth/" + vm.UserId, //see accountcontroller
+                    ReturnUrl = hostName + "/api/return/" + vm.UserId,
                     Type = "account_onboarding",
                 };
                 var accountLinkService = new AccountLinkService();
@@ -64,16 +64,34 @@ namespace Launchpad.Api.Controllers
             }
         }
 
-        [HttpGet("return")]
-        public IActionResult AccountCreationReturn()
+        [HttpGet("return/{id}")]
+        public async Task<IActionResult> AccountCreationReturn([FromRoute] string id)
         {
-            return Ok();
+            try
+            {
+                var user = await _context.Users.SingleOrDefaultAsync(b => b.Id == id);
+                if (user == null)
+                    return BadRequest();
+                var service = new AccountService();
+                var account = await service.GetAsync(user.StripeConnectedAccountId);
+                if (account.ChargesEnabled == false || account.PayoutsEnabled == false)
+                {
+                    return Ok("User must complete onboarding later");
+                }
+                return Ok("Success");
+            }
+
+            
+            catch (StripeException e)
+            {
+                return StatusCode(500, (new { error = e.StripeError.Message }));
+            }
         }
 
-        [HttpGet("reauth")]
-        public IActionResult AccountCreationRefresh()
+        [HttpGet("reauth/{id}")]
+        public async Task<IActionResult> AccountCreationRefresh([FromRoute] string id)
         {
-            return Ok();
+            return await Create(new StripeCreateAccountVM { UserId = id });
         }
 
         [HttpPost("createcustomer")]
@@ -187,7 +205,7 @@ namespace Launchpad.Api.Controllers
          * On payment, price + $2.50 service charge is taken out of the buyer's account and price is credited to seller's account. $2.50 is credited to MKTFY account.
          * */
 
-        [HttpPost("buy")]
+            [HttpPost("buy")]
         public async Task<IActionResult> BuyListing(ListingBuyVM vm)
         {
             //Get listing
