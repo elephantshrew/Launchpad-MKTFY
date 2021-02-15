@@ -21,6 +21,10 @@ using Microsoft.Extensions.Configuration;
 using SendGrid;
 using SendGrid.Helpers.Mail;
 using Stripe;
+using Amazon;
+using Amazon.S3;
+using Amazon.S3.Model;
+using Amazon.S3.Transfer;
 
 namespace Launchpad.Api.Controllers
 {
@@ -37,7 +41,8 @@ namespace Launchpad.Api.Controllers
         private readonly ApplicationDbContext _context;
         private readonly ICategoryRepository _categoryRepository;
         private readonly ICityRepository _cityRepository;
-
+        private static IAmazonS3 _s3Client;
+        private readonly string _bucketName;
 
         public AccountController(SignInManager<User> signInManager, UserManager<User> userManager, IConfiguration configuration, IUserRepository userRepository, ILookupNormalizer normalizer, ApplicationDbContext context, ICategoryRepository categoryRepository, ICityRepository cityRepository)
         {
@@ -49,7 +54,10 @@ namespace Launchpad.Api.Controllers
             _context = context;
             _categoryRepository = categoryRepository;
             _cityRepository = cityRepository;
+            var bucketRegion = _configuration.GetValue<string>("BucketRegion");
             StripeConfiguration.ApiKey = _configuration.GetValue<string>("StripeTestKey");
+            _s3Client = new AmazonS3Client(RegionEndpoint.GetBySystemName(bucketRegion));
+            _bucketName = _configuration.GetValue<string>("BucketName");
         }
 
         [AllowAnonymous]
@@ -327,6 +335,7 @@ namespace Launchpad.Api.Controllers
         [HttpPost("Listings")]
         public async Task<ActionResult<Listing>> CreateListing([FromForm] ListingCreateVM vm)
         {
+            var fileTransferUtility = new TransferUtility(_s3Client);
             var user = await _context.Users.SingleOrDefaultAsync(b => b.Id == vm.UserId);
             if (user == null)
                 return BadRequest();
@@ -353,25 +362,41 @@ namespace Launchpad.Api.Controllers
             var city = await _context.Cities.SingleOrDefaultAsync(x => x.Name == vm.CityName);
             //var user = await _context.Users.SingleOrDefaultAsync(x => x.Id == vm.UserId);
             var category = await _context.Categories.SingleOrDefaultAsync(x => x.CategoryName == vm.CategoryName);
+            string s3Key = null;
+            Guid listingId = Guid.NewGuid();
             var listing = new Listing(vm, city, user, category);
-            await _context.AddAsync(listing);
-
-            foreach (var image in vm.Images)
+            try
             {
-                if (image.Length > 0)
+                foreach (var image in vm.Images)
                 {
-                    using (var memoryStream = new MemoryStream())
+                    if (image.Length > 0)
                     {
-                        await image.CopyToAsync(memoryStream);
-                        var arrImg = memoryStream.ToArray();
-                        var img = new ListingImage(arrImg, listing);
-                        //listing.ListingImages.Add(img);
-                        await _context.AddAsync(img);
+                        using (var memoryStream = new MemoryStream())
+                        {
+                            await image.CopyToAsync(memoryStream);
+                            var arrImg = memoryStream.ToArray();
+                            s3Key = vm.UserId + vm.Title + DateTime.Now.ToString();
+                            var img = new ListingImage(arrImg, listing);
+                            await _context.AddAsync(img);
+                            listing.S3Key = s3Key;
+                            await _context.SaveChangesAsync();
+                            await fileTransferUtility.UploadAsync(memoryStream,
+                                                   _bucketName, s3Key);
+
+                        }
                     }
                 }
             }
+            catch (AmazonS3Exception e)
+            {
+                Console.WriteLine("Error encountered on server. Message:'{0}' when writing an object", e.Message);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Unknown encountered on server. Message:'{0}' when writing an object", e.Message);
+            }
 
-            await _context.SaveChangesAsync();
+
             return Ok(new { count = vm.Images.Count, size });
         }
 

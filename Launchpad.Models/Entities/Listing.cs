@@ -22,6 +22,7 @@ namespace Launchpad.Models.Entities
         public string UserId { get; set; }
         public Category Category { get; set; }
         public Boolean DisplayInSearches { get; set; } = true;
+        public string S3Key { get; set; }
 
 
         public Listing() { }
